@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>推し×マヤ暦 診断カード生成ツール</title>
+<link rel="stylesheet" href="style.css?v=8">
+<link rel="stylesheet" href="style_v8.css?v=1">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&family=Yomogi&family=Kiwi+Maru:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+<div class="app-container">
+
+<!-- サイドバー -->
+<aside class="control-panel">
+  <h1>推し相性ラボ 🔮</h1>
+  <p class="subtitle">画像生成管理ツール</p>
+  
+  <div style="display:flex; gap:10px; margin-bottom:20px; border-bottom: 2px dashed var(--border-color); padding-bottom: 15px;">
+    <button id="mode-gen-btn" style="flex:1; padding:8px; background:var(--primary-color); color:#fff; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">画像生成</button>
+    <button id="mode-dash-btn" style="flex:1; padding:8px; background:#e2e8f0; color:#333; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">SNSダッシュボード</button>
+  </div>
+  <div class="form-group">
+    <label for="user-name">依頼者のお名前</label>
+    <input type="text" id="user-name" placeholder="例: ちあき" value="ちあき">
+  </div>
+  <div class="form-group">
+    <label>依頼者の生年月日</label>
+    <div style="display:flex; gap:6px;">
+      <select id="user-birth-year" style="flex:1.5; padding:8px 4px; border-radius:8px; border:2px solid var(--border-color); font-family:inherit; font-size:1rem;"></select>
+      <select id="user-birth-month" style="flex:1; padding:8px 4px; border-radius:8px; border:2px solid var(--border-color); font-family:inherit; font-size:1rem;"></select>
+      <select id="user-birth-day" style="flex:1; padding:8px 4px; border-radius:8px; border:2px solid var(--border-color); font-family:inherit; font-size:1rem;"></select>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="plan-type">鑑定プラン</label>
+    <select id="plan-type">
+      <option value="low" selected>🌱 Starter Plan</option>
+      <option value="mid">🔮 Feeling Plan</option>
+      <option value="high">💜 Soul Plan</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label for="target-oshi">推しを選択</label>
+    <select id="target-oshi">
+      <option value="" disabled selected>選択してください</option>
+    </select>
+    <button id="toggle-add-oshi-btn" class="secondary-btn" style="margin-top:8px; padding: 0.6rem; font-size: 0.9rem; background-color: #f472b6;">＋ 新しい推しを登録</button>
+  </div>
+  
+  <div id="add-oshi-panel" style="display:none; background: #fff5f8; padding: 12px; border-radius: 8px; margin-bottom: 1.5rem; border: 1px dashed #f472b6;">
+    <h3 style="font-size: 14px; color: #db2777; margin-bottom: 8px;">👑 新規登録フォーム</h3>
+    <div style="margin-bottom: 8px;">
+      <label style="font-size:12px; font-weight:bold; color:#666;">名前</label>
+      <input type="text" id="new-oshi-name" placeholder="例: ジョンハン" style="width:100%; padding:6px; border:1px solid #ccc; border-radius:4px; font-size:13px;">
+    </div>
+    <div style="margin-bottom: 8px;">
+      <label style="font-size:12px; font-weight:bold; color:#666;">グループ名（任意）</label>
+      <input type="text" id="new-oshi-group" placeholder="例: SEVENTEEN" style="width:100%; padding:6px; border:1px solid #ccc; border-radius:4px; font-size:13px;">
+    </div>
+    <div style="margin-bottom: 8px;">
+      <label style="font-size:12px; font-weight:bold; color:#666;">生年月日</label>
+      <div style="display:flex; gap:4px;">
+        <select id="new-oshi-birth-year" style="flex:1.5; padding:6px; border-radius:4px; border:1px solid #ccc; font-size:13px;"></select>
+        <select id="new-oshi-birth-month" style="flex:1; padding:6px; border-radius:4px; border:1px solid #ccc; font-size:13px;"></select>
+        <select id="new-oshi-birth-day" style="flex:1; padding:6px; border-radius:4px; border:1px solid #ccc; font-size:13px;"></select>
+      </div>
+    </div>
+    <div style="margin-bottom: 12px;">
+      <label style="font-size:12px; font-weight:bold; color:#666;">似顔絵/画像（任意）</label>
+      <input type="file" id="new-oshi-image" accept="image/*" style="width:100%; font-size:12px;">
+      <div style="font-size:10px; color:#888; margin-top:2px;">※画像を設定しない場合は自動で汎用画像になります</div>
+    </div>
+    <button id="save-new-oshi-btn" style="width:100%; padding:8px; background-color:#db2777; color:white; border:none; border-radius:4px; font-weight:bold; cursor:pointer;">リストに保存して選択</button>
+  </div>
+  <button id="generate-btn" class="primary-btn">診断＆カード生成 ✨</button>
+  <button id="print-btn" class="secondary-btn" style="margin-top:10px;">PDF印刷 🖨️</button>
+  
+
+</aside>
+
+<!-- メインエリア -->
+<main class="preview-area">
+<div id="image-gen-view" style="width:100%; display:flex; flex-direction:column; align-items:center;">
+<div class="canvas-wrapper">
+
+<!-- ===== STARTER PLAN (1ページ) ===== -->
+<div id="page-starter" class="plan-page starter-theme" style="display:none;">
+  <div class="plan-header">
+    <div class="plan-badge">✨ Starter Plan ✨</div>
+    <h2 class="plan-title"><span class="dynamic-group-name">BTS</span> <span>推し沼診断</span>♡</h2>
+    <p class="plan-sub">あなたと<span class="dynamic-group-name">BTS</span>の相性をマヤ暦でお届けします♡</p>
+  </div>
+
+  <div class="st-top-row">
+    <div class="st-user-box">
+      <h3 class="box-title">✨ あなたの基本タイプ</h3>
+      <div class="st-avatar"><img id="st-user-img" src="images/user.png" alt="User"></div>
+      <div class="st-kin-info">
+        <h3 id="display-user-name" class="st-name">あなた</h3>
+        <div class="st-kin-num">KIN <span id="user-kin">???</span></div>
+        <div id="user-seal-tone" class="st-seal">白い犬 × 音7</div>
+        <span class="st-tag" id="user-type-tag">感情を大切にするタイプ</span>
+      </div>
+      <p class="st-user-desc" id="user-desc-text">相手の感情や優しさに敏感で、「ちゃんと自分を見てくれる人」に安心感を感じやすいタイプです♡</p>
+    </div>
+
+    <div class="st-top3-box">
+      <h3 class="box-title">🔮 あなたと波長が合うメンバー TOP3</h3>
+      <div class="top3-cards-container">
+        <div class="top3-member-card rank-1">
+          <div class="top3-rank-badge gold">👑 1位</div>
+          <div class="top3-avatar-wrapper"><img id="img-rank1" src="images/jungkook.png"><span class="top3-score-pill" id="score-rank1">98%</span></div>
+          <div class="top3-info">
+            <h3 class="top3-name" id="name-rank1">Jungkook</h3>
+            <div class="top3-kin" id="kin-rank1">KIN 81</div>
+            <div class="top3-relation-badge" id="relation-tag-rank1">感情共鳴型</div>
+            <p class="top3-desc" id="desc-rank1">惹かれやすい相性♡</p>
+          </div>
+        </div>
+        <div class="top3-member-card rank-2">
+          <div class="top3-rank-badge silver">👑 2位</div>
+          <div class="top3-avatar-wrapper"><img id="img-rank2" src="images/jungkook.png"><span class="top3-score-pill" id="score-rank2">92%</span></div>
+          <div class="top3-info">
+            <h3 class="top3-name" id="name-rank2">Jimin</h3>
+            <div class="top3-kin" id="kin-rank2">KIN 173</div>
+            <div class="top3-relation-badge" id="relation-tag-rank2">安心のオアシス</div>
+            <p class="top3-desc" id="desc-rank2">落ち着く相性</p>
+          </div>
+        </div>
+        <div class="top3-member-card rank-3">
+          <div class="top3-rank-badge bronze">👑 3位</div>
+          <div class="top3-avatar-wrapper"><img id="img-rank3" src="images/jungkook.png"><span class="top3-score-pill" id="score-rank3">90%</span></div>
+          <div class="top3-info">
+            <h3 class="top3-name" id="name-rank3">Suga</h3>
+            <div class="top3-kin" id="kin-rank3">KIN 5</div>
+            <div class="top3-relation-badge" id="relation-tag-rank3">前向きエナジー</div>
+            <p class="top3-desc" id="desc-rank3">明るくなれる</p>
+          </div>
+        </div>
+      </div>
+      <div class="upsell-banner upsell-banner-feeling" id="upsell-banner-feeling" style="display:none;">
+        <div class="upsell-badge">🔑 Feeling Plan で全員公開！</div>
+        <p class="upsell-text">4位以降のメンバーとの相性や「なぜ惹かれるのか」の深い分析は<span>Feeling Plan</span>で♡</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="st-detail-section" id="detail-section" style="display:none;">
+    <div class="section-divider"><span>→ ✨ TOP3メンバー 相性ポイント ✨ ←</span></div>
+    <div class="detail-grid">
+      <div class="detail-box">
+        <div class="detail-header"><span class="num">1</span><h3 id="detail-name1">メンバー名</h3></div>
+        <div class="detail-bubble" id="detail-bubble1">共鳴型の相性♡</div>
+        <ul class="point-list" id="point-list1"><li></li><li></li><li></li></ul>
+      </div>
+      <div class="detail-box">
+        <div class="detail-header"><span class="num">2</span><h3 id="detail-name2">メンバー名</h3></div>
+        <div class="detail-bubble blue" id="detail-bubble2">信頼感のある相性</div>
+        <ul class="point-list" id="point-list2"><li></li><li></li><li></li></ul>
+      </div>
+      <div class="detail-box">
+        <div class="detail-header"><span class="num">3</span><h3 id="detail-name3">メンバー名</h3></div>
+        <div class="detail-bubble yellow" id="detail-bubble3">前向きエナジー♡</div>
+        <ul class="point-list" id="point-list3"><li></li><li></li><li></li></ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="report-footer">
+    <div class="message-box">
+      <h4>🔮 マヤ暦からのメッセージ</h4>
+      <p id="maya-message">あなたは「感情を理解してくれる人」に強く惹かれやすいタイプ✨</p>
+      <div class="compatibility-note">※当診断は感性の親和性を基にした情緒的な推し活診断です💜</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== FEELING PLAN PAGE 1 ===== -->
+<div id="page-feeling-1" class="plan-page feeling-theme" style="display:none;">
+  <div class="plan-header">
+    <div class="plan-badge">✨ Feeling Plan ✨</div>
+    <h2 class="plan-title"><span class="dynamic-group-name">BTS</span> <span>推し沼診断</span>♡</h2>
+    <p class="plan-sub">あなたと<span class="dynamic-group-name">BTS</span>の相性レポート</p>
+  </div>
+
+  <div class="fl-main-row">
+    <div class="fl-user-col">
+      <div class="fl-user-card">
+        <h3 class="fl-section-title">✨ <span id="f1-user-name">あなた</span> さんの基本タイプ</h3>
+        <div class="fl-user-avatar-wrapper" style="text-align: center; margin: 10px 0;">
+          <div class="f1-user-avatar-wrapper"><img id="f1-user-img" src="images/User/user.png" alt="あなた"></div>
+        </div>
+        <div class="fl-kin-big">KIN <span id="f1-user-kin">???</span></div>
+        <div id="f1-user-seal-tone" class="fl-seal">白い犬 × 音7</div>
+        <div class="fl-type-badge" id="f1-user-type-tag">感情共鳴型</div>
+        <div class="fl-info-block">
+          <h5>💭 性格の特徴</h5>
+          <p id="f1-personality">感情を大切にするタイプです。</p>
+        </div>
+        <div class="fl-info-block">
+          <h5>💗 感情傾向</h5>
+          <p id="f1-emotion-trend">相手の空気感や優しさに強く惹かれやすい傾向があります。</p>
+        </div>
+        <div class="fl-keywords">
+          <span id="f1-kw1" class="fl-kw">共鳴</span>
+          <span id="f1-kw2" class="fl-kw">安心</span>
+          <span id="f1-kw3" class="fl-kw">癒し</span>
+          <span id="f1-kw4" class="fl-kw">成長</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="fl-rank-col">
+      <div class="fl-rank-card">
+        <h3 class="fl-section-title">🔮 TOP3 感情相性ランキング</h3>
+        <div class="fl-rank-list">
+          <div class="fl-rank-item fl-gold">
+            <div class="fl-medal">🥇</div>
+            <div class="fl-img-wrapper"><img id="f1-img-rank1" src="images/jungkook.png" class="fl-rank-img"></div>
+            <div class="fl-rank-info">
+              <h4 id="f1-name-rank1">Jungkook</h4>
+              <div class="fl-rank-tag" id="f1-relation-tag-rank1">感情共鳴型</div>
+              <div class="fl-rank-score" id="f1-score-rank1">98%</div>
+            </div>
+          </div>
+          <div class="fl-rank-item fl-silver">
+            <div class="fl-medal">🥈</div>
+            <div class="fl-img-wrapper"><img id="f1-img-rank2" src="images/jungkook.png" class="fl-rank-img"></div>
+            <div class="fl-rank-info">
+              <h4 id="f1-name-rank2">Jimin</h4>
+              <div class="fl-rank-tag" id="f1-relation-tag-rank2">安心のオアシス</div>
+              <div class="fl-rank-score" id="f1-score-rank2">92%</div>
+            </div>
+          </div>
+          <div class="fl-rank-item fl-bronze">
+            <div class="fl-medal">🥉</div>
+            <div class="fl-img-wrapper"><img id="f1-img-rank3" src="images/jungkook.png" class="fl-rank-img"></div>
+            <div class="fl-rank-info">
+              <h4 id="f1-name-rank3">Suga</h4>
+              <div class="fl-rank-tag" id="f1-relation-tag-rank3">前向きエナジー</div>
+              <div class="fl-rank-score" id="f1-score-rank3">90%</div>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="fl-section-title" style="margin-top:12px;">📊 4〜7位 ランキング</h3>
+        <div class="fl-sub-rank-list" id="f1-sub-ranking"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fl-numa-section">
+    <div class="fl-numa-label">あなたの推し沼タイプ分析</div>
+    <div class="fl-numa-type" id="f1-numa-type">"感情共鳴型"</div>
+    <p class="fl-numa-desc" id="f1-numa-desc">相手の感情の波長を自分の心で受け取り、深く共鳴するタイプ。心のつながりを大切にします。</p>
+  </div>
+</div>
+
+<!-- ===== FEELING PLAN PAGE 2 ===== -->
+<div id="page-feeling-2" class="plan-page feeling-theme" style="display:none;">
+  <div class="plan-header">
+    <div class="plan-badge">✨ Feeling Plan ✨</div>
+    <h2 class="plan-title"><span class="dynamic-group-name">BTS</span> <span>推し沼診断</span>♡</h2>
+    <p class="plan-sub">相性タイプ分析レポート</p>
+  </div>
+
+  <div class="fl2-section">
+    <h3 class="fl2-section-title">🌿 相性タイプ分析（TOP3）</h3>
+    <div class="fl2-analysis-grid">
+      <div class="fl2-analysis-card">
+        <div class="fl2-card-rank">🥇 1位</div>
+        <div class="fl2-img-wrapper"><img id="f2-img-rank1" src="images/jungkook.png" class="fl2-member-img"></div>
+        <h4 id="f2-name-rank1">Jungkook</h4>
+        <div class="fl2-tag" id="f2-tag-rank1">感情共鳴型</div>
+        <p id="f2-analysis-rank1" class="fl2-analysis-text">惹かれやすい相性の詳細分析がここに表示されます。</p>
+      </div>
+      <div class="fl2-analysis-card">
+        <div class="fl2-card-rank">🥈 2位</div>
+        <div class="fl2-img-wrapper"><img id="f2-img-rank2" src="images/jungkook.png" class="fl2-member-img"></div>
+        <h4 id="f2-name-rank2">Jimin</h4>
+        <div class="fl2-tag" id="f2-tag-rank2">安心のオアシス</div>
+        <p id="f2-analysis-rank2" class="fl2-analysis-text">落ち着く相性の詳細分析がここに表示されます。</p>
+      </div>
+      <div class="fl2-analysis-card">
+        <div class="fl2-card-rank">🥉 3位</div>
+        <div class="fl2-img-wrapper"><img id="f2-img-rank3" src="images/jungkook.png" class="fl2-member-img"></div>
+        <h4 id="f2-name-rank3">Suga</h4>
+        <div class="fl2-tag" id="f2-tag-rank3">前向きエナジー</div>
+        <p id="f2-analysis-rank3" class="fl2-analysis-text">明るくなれる相性の詳細分析がここに表示されます。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="fl2-section">
+    <h3 class="fl2-section-title">💫 4〜6位 相性チェック</h3>
+    <div class="fl2-sub-rank-grid" id="f2-sub-rank-grid">
+      <div class="fl2-sub-rank-card">
+        <div class="fl2-sub-rank-header">
+          <span class="fl2-sub-rank-num" id="f2-sub-num4">4位</span>
+          <div class="fl2-img-wrapper"><img id="f2-sub-img4" src="images/jungkook.png" class="fl2-sub-rank-img"></div>
+          <div class="fl2-sub-rank-meta">
+            <span class="fl2-sub-rank-name" id="f2-sub-name4">メンバー</span>
+            <span class="fl2-sub-rank-score" id="f2-sub-score4">00%</span>
+          </div>
+        </div>
+        <p class="fl2-sub-rank-comment" id="f2-sub-comment4">相性コメントがここに入ります。</p>
+      </div>
+      <div class="fl2-sub-rank-card">
+        <div class="fl2-sub-rank-header">
+          <span class="fl2-sub-rank-num" id="f2-sub-num5">5位</span>
+          <div class="fl2-img-wrapper"><img id="f2-sub-img5" src="images/jungkook.png" class="fl2-sub-rank-img"></div>
+          <div class="fl2-sub-rank-meta">
+            <span class="fl2-sub-rank-name" id="f2-sub-name5">メンバー</span>
+            <span class="fl2-sub-rank-score" id="f2-sub-score5">00%</span>
+          </div>
+        </div>
+        <p class="fl2-sub-rank-comment" id="f2-sub-comment5">相性コメントがここに入ります。</p>
+      </div>
+      <div class="fl2-sub-rank-card">
+        <div class="fl2-sub-rank-header">
+          <span class="fl2-sub-rank-num" id="f2-sub-num6">6位</span>
+          <div class="fl2-img-wrapper"><img id="f2-sub-img6" src="images/jungkook.png" class="fl2-sub-rank-img"></div>
+          <div class="fl2-sub-rank-meta">
+            <span class="fl2-sub-rank-name" id="f2-sub-name6">メンバー</span>
+            <span class="fl2-sub-rank-score" id="f2-sub-score6">00%</span>
+          </div>
+        </div>
+        <p class="fl2-sub-rank-comment" id="f2-sub-comment6">相性コメントがここに入ります。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="fl2-section">
+    <h3 class="fl2-section-title">💕 "なぜ惹かれるのか？" 分析</h3>
+    <div class="fl2-why-box">
+      <p id="f2-why-attracted">あなたが推しに惹かれる核心的な理由についての読み物感ある考察がここに入ります。感情の共鳴、安心感、刺激など、あなた固有の惹かれやすさのパターンを深く読み解きます♡</p>
+    </div>
+  </div>
+
+  <div class="fl2-section">
+    <h3 class="fl2-section-title">💎 あなたの感情キーワード</h3>
+    <div class="fl2-kw-row" id="f2-emotion-keywords">
+      <span class="fl2-kw-tag">共鳴</span>
+      <span class="fl2-kw-tag">安心</span>
+      <span class="fl2-kw-tag">癒し</span>
+      <span class="fl2-kw-tag">成長</span>
+      <span class="fl2-kw-tag">信頼</span>
+    </div>
+  </div>
+
+  <div class="fl2-soul-upsell" id="upsell-banner-soul" style="display:none;">
+    <div class="upsell-badge premium">💎 Soul Plan 特別公開</div>
+    <p class="upsell-text">本命推しとの<strong>「魂の引力・深層のつながり」</strong>をさらに深く。<span>Soul Plan</span>では実際のエピソード考察と特別な推し活アドバイスをお届けします✨</p>
+  </div>
+  <div class="page-num-footer">2 / 2</div>
+</div>
+
+<!-- ===== SOUL PLAN PAGE 1 ===== -->
+<div id="page-soul-1" class="plan-page soul-theme" style="display:none;">
+  <div class="plan-header">
+    <div class="plan-badge">✨ Soul Plan ✨</div>
+    <h2 class="plan-title"><span class="dynamic-group-name">BTS</span> <span>推し沼診断</span>♡</h2>
+    <p class="plan-sub">あなたと<span class="dynamic-group-name">BTS</span>の特別レポート</p>
+  </div>
+
+  <div class="sl-relation-center">
+    <div class="sl-you-side">
+      <div class="sl-you-img-wrapper">
+        <img id="s1-you-img" src="images/user.png" class="sl-you-img" alt="あなた">
+      </div>
+      <div class="sl-you-name" id="s1-user-name">あなた</div>
+      <div class="sl-you-kin">KIN <span id="s1-user-kin">???</span></div>
+    </div>
+    <div class="sl-arrow-area">
+      <div class="sl-arrow-line">
+        <span class="sl-relation-label" id="s1-relation-type">魂の共鳴型</span>
+      </div>
+      <div class="sl-heart">💜</div>
+    </div>
+    <div class="sl-oshi-side">
+      <div class="sl-oshi-img-wrapper">
+        <img id="s1-oshi-img" src="images/jungkook.png" class="sl-oshi-img" alt="推し">
+      </div>
+      <div class="sl-oshi-name" id="s1-oshi-name">Jungkook</div>
+      <div class="sl-oshi-kin" id="s1-oshi-kin">KIN 81</div>
+    </div>
+  </div>
+
+  <div class="sl-two-col">
+    <div class="sl-col">
+      <h4 class="sl-col-title">💗 あなた側 感情深掘り</h4>
+      <div class="sl-col-box">
+        <h5>なぜ惹かれる？</h5>
+        <p id="s1-why-attracted">感情の引力分析がここに入ります。</p>
+      </div>
+      <div class="sl-col-box">
+        <h5>あなたの感情タイプ</h5>
+        <p id="s1-user-emotion-type">感情共鳴型の詳細がここに入ります。</p>
+      </div>
+    </div>
+    <div class="sl-col">
+      <h4 class="sl-col-title">🔮 推し側分析</h4>
+      <div class="sl-col-box">
+        <h5>推しから見たあなた</h5>
+        <p id="s1-from-oshi">推し側からの分析がここに入ります。</p>
+      </div>
+      <div class="sl-col-box">
+        <h5>関係性タイプ</h5>
+        <div class="sl-relation-badge" id="s1-relation-badge">魂の共鳴型</div>
+        <p id="s1-relation-desc">2人の関係性の詳細がここに入ります。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="sl-bond-section">
+    <h4 class="sl-bond-title">✨ 2人の関係性タイプ</h4>
+    <div class="sl-bond-type" id="s1-bond-type">"心のつながり重視型"</div>
+    <p id="s1-bond-desc" class="sl-bond-desc">2人の魂のつながりの考察がここに入ります。</p>
+  </div>
+  <div class="page-num-footer">1 / 2</div>
+</div>
+
+<!-- ===== SOUL PLAN PAGE 2 ===== -->
+<div id="page-soul-2" class="plan-page soul-theme" style="display:none;">
+  <div class="plan-header">
+    <div class="plan-badge">✨ Soul Plan ✨</div>
+    <h2 class="plan-title"><span class="dynamic-group-name">BTS</span> <span>推し沼診断</span>♡</h2>
+    <p class="plan-sub">感情物語・推し活アドバイス</p>
+  </div>
+
+  <div class="sl2-section">
+    <h3 class="sl2-section-title">📖 実際のエピソード考察</h3>
+    <div class="sl2-episode-grid">
+      <div class="sl2-episode-card">
+        <div class="sl2-ep-icon">🎤</div>
+        <h5 class="sl2-ep-label" id="s2-ep1-label">ライブでの瞬間</h5>
+        <p id="s2-ep1-text">あの瞬間の分析がここに入ります。</p>
+      </div>
+      <div class="sl2-episode-card">
+        <div class="sl2-ep-icon">💬</div>
+        <h5 class="sl2-ep-label" id="s2-ep2-label">言葉・発言の場面</h5>
+        <p id="s2-ep2-text">心に刺さった言葉の分析がここに入ります。</p>
+      </div>
+      <div class="sl2-episode-card">
+        <div class="sl2-ep-icon">✨</div>
+        <h5 class="sl2-ep-label" id="s2-ep3-label">ふとした瞬間</h5>
+        <p id="s2-ep3-text">気づきの瞬間の分析がここに入ります。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="sl2-section">
+    <h3 class="sl2-section-title">💭 感情考察・沼る理由</h3>
+    <div class="sl2-emotion-box">
+      <p id="s2-emotion-analysis">感情考察・推し活感情整理がここに入ります。</p>
+    </div>
+  </div>
+
+  <div class="sl2-section">
+    <h3 class="sl2-section-title">💌 推し活アドバイス</h3>
+    <div class="sl2-advice-container">
+      <div class="sl2-advice-oshi-img-wrapper"><img id="s2-img-advice" src="images/User/user.png" class="sl2-advice-oshi-img" alt="Oshi"></div>
+      <div class="sl2-advice-box">
+        <p id="s2-advice">特別な推し活アドバイスがここに入ります。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="sl2-closing">
+    <p id="s2-closing">最後に…あなたの推し活が、毎日をもっと豊かで輝かしいものにしてくれますように💜</p>
+  </div>
+  <div class="page-num-footer">2 / 2</div>
+</div>
+
+</div><!-- /canvas-wrapper -->
+
+<!-- テキスト出力 -->
+<div class="text-output-area" style="margin-top:30px;width:100%;max-width:800px; display:flex; flex-direction:column; gap:20px;">
+  
+  <div>
+    <h3 style="color:var(--primary-color);margin-bottom:10px;">📱 SNS投稿用テキスト（Threads / X など）</h3>
+    <textarea id="sns-output-text" rows="8" style="width:100%;padding:15px;border-radius:12px;border:2px solid var(--primary-color);font-family:inherit;font-size:1rem;line-height:1.6;resize:vertical;background:rgba(255,255,255,0.9);" readonly>生年月日を入力すると、ここにSNS用の短い文章が作られます✨</textarea>
+    <button id="copy-sns-btn" class="secondary-btn" style="margin-top:10px;width:100%; background-color:#10b981; color:white; border-color:#10b981;">SNS用テキストをコピーする 📱</button>
+  </div>
+
+  <div>
+    <h3 style="color:var(--primary-color);margin-bottom:10px;">📄 ココナラ納品用テキスト（フルバージョン）</h3>
+    <textarea id="delivery-text" rows="15" style="width:100%;padding:15px;border-radius:12px;border:2px solid var(--border-color);font-family:inherit;font-size:1rem;line-height:1.6;resize:vertical;background:rgba(255,255,255,0.8);" readonly>生年月日を入力して診断を生成すると、ここにコピペ用の文章が作られます✨</textarea>
+    <button id="copy-text-btn" class="secondary-btn" style="margin-top:10px;width:100%;">納品用テキストをコピーする 📋</button>
+  </div>
+
+</div>
+
+</div>
+
+<!-- SNS投稿用画像テンプレート (非表示) -->
+<div id="sns-image-template" style="position:absolute; left:-9999px; width:1080px; height:1080px; background: linear-gradient(135deg, #fdf2f8 0%, #e0e7ff 100%); display:flex; flex-direction:column; justify-content:center; align-items:center; padding:80px; box-sizing:border-box; font-family:'Helvetica Neue', Arial, sans-serif;">
+    <div style="background:rgba(255,255,255,0.95); border-radius:40px; padding:80px; width:100%; height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; box-shadow:0 20px 50px rgba(0,0,0,0.1); border: 4px solid #fbcfe8;">
+        <h2 style="font-size:48px; color:#db2777; margin-bottom:20px; letter-spacing: 4px;">🔮 OSHI × MAYA</h2>
+        <div id="sns-template-title" style="font-size:72px; font-weight:bold; color:#1f2937; line-height:1.4; margin-bottom:60px; word-break: keep-all;">伝説の餃子事件とは？</div>
+        <div style="font-size:36px; color:#4b5563; background:#f3f4f6; padding:20px 40px; border-radius:100px; font-weight:bold;">マヤ暦で紐解く、2人の運命の絆</div>
+        <div style="margin-top:auto; display:flex; align-items:center; gap:20px;">
+            <div style="font-size:32px; color:#888;">Swipe to read more ➔</div>
+        </div>
+    </div>
+</div>
+
+<!-- ダッシュボードビュー -->
+<div id="dashboard-view" style="display:none; width:100%; max-width:800px; margin: 0 auto; background: rgba(255,255,255,0.9); border-radius:12px; padding:30px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: left;">
+  <h2 style="color:var(--primary-color); margin-bottom:15px; border-bottom:2px dashed #f472b6; padding-bottom:10px;">🌟 SNS投稿 承認ダッシュボード</h2>
+  <p style="font-size:14px; margin-bottom:20px; color:#555; line-height: 1.6;">
+    AIが毎晩自動生成した記事がここにストックされます。<br>
+    内容を確認して修正し、「✅ 承認する」を押すと、指定した時間にThreadsへ自動投稿されます。
+  </p>
+  <button id="dash-reload-btn" class="secondary-btn" style="margin-bottom:20px; font-size:14px; padding:8px 16px; background-color: #fce7f3; border-color: #fbcfe8;">🔄 スプレッドシートから最新データを取得</button>
+  <div id="dash-loading" style="display:none; text-align:center; padding:40px; font-size: 1.2rem; color: #db2777;">
+    ⏳ データを読み込み中...
+  </div>
+  <div id="dash-error" style="display:none; text-align:center; padding:20px; color: red;"></div>
+  <div id="dash-cards-container" style="display:flex; flex-direction:column; gap:20px;">
+    <!-- JSでここにカードが動的に挿入されます -->
+  </div>
+</div>
+
+</main>
+</div>
+<script src="script.js?v=9"></script>
+</body>
+</html>
