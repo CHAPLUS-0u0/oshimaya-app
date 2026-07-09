@@ -1,0 +1,1106 @@
+/* =============================================
+   推しマヤ v8 - 新レイアウト用スタイル
+   ============================================= */
+
+/* --- 共通 plan-page ベース（A4縦長） --- */
+.plan-page {
+    width: 794px;
+    min-height: 1123px; /* 最低でもA4比率を保つが、中身が増えたら自然に伸びるようにする */
+    height: auto;
+    font-family: 'Kiwi Maru', 'Zen Maru Gothic', sans-serif;
+    border-radius: 16px;
+    padding: 35px 32px 32px 32px;
+    box-sizing: border-box;
+    margin-bottom: 24px;
+    position: relative;
+    /* overflow: hidden; を削除してはみ出しによる文字切れを防止 */
+}
+
+/* =============================================
+   共通プランヘッダー (統一タイトルデザイン)
+   ============================================= */
+.plan-header {
+    text-align: center;
+    margin-bottom: 10px; /* 余白を詰める */
+    position: relative;
+}
+.plan-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #f472b6, #fb923c);
+    color: white;
+    padding: 8px 30px; /* プラン名バッジをさらに大きく */
+    border-radius: 26px;
+    font-size: 16.5px;
+    font-weight: bold;
+    margin-bottom: 6px; /* バッジ下の余白を詰める */
+    box-shadow: 0 4px 10px rgba(244,114,182,0.35);
+}
+.plan-title {
+    font-family: 'Yomogi', sans-serif;
+    font-size: 26px;
+    color: #be185d;
+    letter-spacing: 2px;
+    margin: 0;
+}
+.plan-title span {
+    color: #7c3aed;
+    font-size: 28px;
+}
+.plan-sub {
+    color: #be185d;
+    font-size: 13px;
+    font-weight: bold;
+    margin-top: 4px;
+    margin-bottom: 0;
+}
+
+/* テーマごとのヘッダー色ブレンド */
+.feeling-theme .plan-badge {
+    background: linear-gradient(135deg, #a78bfa, #7c3aed);
+    box-shadow: 0 3px 8px rgba(167,139,250,0.35);
+}
+.feeling-theme .plan-title {
+    color: #6d28d9;
+}
+.feeling-theme .plan-title span {
+    color: #db2777;
+}
+.feeling-theme .plan-sub {
+    color: #7c3aed;
+}
+
+.soul-theme .plan-header {
+    padding-top: 15px; /* 星を避けるためにタイトルの上部余白を確保（バッジを少し上へ） */
+}
+.soul-theme .plan-badge {
+    background: linear-gradient(135deg, #8b5cf6, #3b0764);
+    box-shadow: 0 3px 8px rgba(139,92,246,0.35);
+}
+.soul-theme .plan-title {
+    color: #3b0764;
+}
+.soul-theme .plan-title span {
+    color: #7c3aed;
+}
+.soul-theme .plan-sub {
+    color: #4c1d95;
+}
+
+/* フッターのページ番号スタイル */
+.page-num-footer {
+    position: absolute;
+    bottom: 22px;
+    right: 32px;
+    font-size: 13px;
+    color: #888;
+    font-weight: bold;
+    font-family: 'Zen Maru Gothic', sans-serif;
+    z-index: 10;
+}
+.feeling-theme .page-num-footer {
+    color: #a78bfa;
+}
+.soul-theme .page-num-footer {
+    color: #c084fc;
+}
+
+/* =============================================
+   STARTER THEME
+   ============================================= */
+.starter-theme {
+    border: 3px solid rgba(255,182,206,0.5);
+    box-shadow: 0 15px 40px rgba(255,100,150,0.1);
+}
+
+.st-top-row {
+    display: flex; gap: 14px; margin-bottom: 8px; /* 余白を詰める */
+}
+.st-user-box {
+    flex: 1;
+    background: rgba(255,255,255,0.8);
+    border: 2px solid rgba(255,182,206,0.4);
+    border-radius: 14px; padding: 10px; /* パディングを詰める */
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+}
+.st-user-box .box-title {
+    white-space: nowrap; /* 改行防止 */
+    padding: 4px 8px;
+    font-size: 15px;
+    margin-bottom: 6px;
+}
+.st-avatar, .top3-avatar-wrapper, .f1-user-avatar-wrapper, .fl-img-wrapper, .fl2-img-wrapper, .sl-you-img-wrapper, .sl-oshi-img-wrapper, .sl2-advice-oshi-img-wrapper, .fl-sub-img-wrap {
+    overflow: hidden;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+}
+.st-avatar img, .top3-avatar-wrapper img, .f1-user-avatar-wrapper img, .fl-img-wrapper img, .fl2-img-wrapper img, .sl-you-img-wrapper img, .sl-oshi-img-wrapper img, .sl2-advice-oshi-img-wrapper img, .fl-sub-img-wrap img {
+    object-fit: cover;
+    object-position: top center;
+    transform: scale(1.3);
+}
+.st-avatar img {
+    width: 125px; height: 125px; /* アバターサイズを拡大 */
+    border: 4px solid #fff;
+    box-shadow: 0 4px 12px rgba(255,100,150,0.2);
+    margin-bottom: 8px;
+}
+.st-name { font-size: 18px; font-weight: bold; color: #333; margin-bottom: 4px; } /* 名前を大きくし余白詰める */
+.st-kin-num { font-size: 22px; color: #f472b6; font-weight: bold; }
+.st-seal { font-size: 13px; color: #7c3aed; font-weight: bold; margin: 2px 0; }
+.st-tag {
+    display: inline-block;
+    background: linear-gradient(135deg, #f9a8d4, #c084fc);
+    color: white; padding: 4px 12px; border-radius: 20px;
+    font-size: 12px; font-weight: bold; margin: 4px 0;
+}
+
+/* === WEB/PDF共通でStarter Planをコンパクトに調整 === */
+#page-starter {
+    padding: 24px 32px 16px 32px !important; /* 背景枠に被らないギリギリまで上下の余白を詰める */
+}
+#page-starter .plan-header {
+    margin-bottom: 8px !important;
+}
+#page-starter .st-avatar img {
+    width: 100px !important;
+    height: 100px !important;
+    margin-bottom: 0 !important;
+}
+#page-starter .st-user-desc {
+    font-size: 11px !important;
+    margin-top: 2px !important;
+    padding: 6px !important;
+}
+#page-starter .st-detail-section {
+    padding: 6px 8px !important;
+    margin-bottom: 0px !important;
+}
+#page-starter .top3-cards-container {
+    gap: 8px !important;
+    margin-bottom: 8px !important;
+}
+#page-starter .top3-desc {
+    font-size: 11px !important;
+    line-height: 1.4 !important;
+    margin-top: 4px !important;
+    height: auto !important;
+    overflow: visible !important;
+    -webkit-line-clamp: unset !important;
+    display: block !important;
+}
+#page-starter .st-maya-message {
+    padding: 8px 12px !important;
+    margin-top: 8px !important;
+    border-radius: 10px !important;
+}
+#page-starter .st-maya-message h3 {
+    font-size: 13.5px !important;
+    margin-bottom: 4px !important;
+}
+#page-starter #maya-message {
+    font-size: 11px !important;
+    line-height: 1.4 !important;
+}
+#page-starter .top3-member-card {
+    padding: 6px !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+#page-starter .top3-avatar-wrapper {
+    width: 50px !important;
+    height: 50px !important;
+    margin: 2px auto !important;
+}
+#page-starter .top3-avatar-wrapper img {
+    width: 50px !important;
+    height: 50px !important;
+}
+#page-starter .top3-name {
+    font-size: 13.5px !important;
+    margin-bottom: 2px !important;
+}
+#page-starter .top3-rank-badge {
+    top: -8px !important;
+    padding: 2px 10px !important;
+    font-size: 11px !important;
+}
+#page-starter .st-upsell {
+    padding: 6px 12px !important;
+    margin-top: 8px !important;
+}
+#page-starter .st-upsell p {
+    font-size: 11.5px !important;
+    margin-top: 4px !important;
+    line-height: 1.4 !important;
+}
+.st-user-desc { font-size: 12px; color: #666; line-height: 1.4; margin-top: 4px; background: rgba(255,240,247,0.7); padding: 8px; border-radius: 8px; }
+
+#page-starter .section-divider {
+    margin-top: 4px !important;
+    margin-bottom: 6px !important;
+    font-size: 13px !important;
+}
+#page-starter .detail-header {
+    margin-bottom: 4px !important;
+}
+#page-starter .detail-box {
+    padding: 6px !important;
+}
+#page-starter .detail-header .num {
+    width: 20px !important;
+    height: 20px !important;
+    font-size: 13px !important;
+}
+#page-starter .detail-header h3 {
+    font-size: 14px !important;
+}
+
+.st-top3-box {
+    flex: 2;
+    background: rgba(255,255,255,0.7);
+    border: 2px solid rgba(255,182,206,0.4);
+    border-radius: 14px; padding: 12px;
+}
+
+.st-detail-section {
+    background: rgba(255,255,255,0.85);
+    border: 2px solid rgba(255,182,206,0.3);
+    border-radius: 12px; padding: 12px; margin-bottom: 0px; /* 一番下なのでマージン不要 */
+}
+
+/* =============================================
+   FEELING THEME
+   ============================================= */
+.feeling-theme {
+    border: 3px solid rgba(167,139,250,0.4);
+    box-shadow: 0 15px 40px rgba(124,58,237,0.1);
+}
+
+/* fl-header styling has been unified into .plan-header */
+
+.fl-main-row {
+    display: flex;
+    gap: 18px;
+    margin-bottom: 24px; /* 余白を拡大 */
+    align-items: stretch; /* 左右カラムの高さを強制的にそろえる */
+}
+.fl-user-col {
+    flex: 1.1;
+    display: flex;
+}
+.fl-rank-col {
+    flex: 1.4;
+    display: flex;
+}
+
+/* 依頼人プロフィール追加用のスタイル */
+.fl-user-profile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 14px;
+    border-bottom: 1.5px dashed rgba(167,139,250,0.3);
+    padding-bottom: 12px;
+}
+.fl-user-avatar {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3.5px solid #fff;
+    box-shadow: 0 4px 12px rgba(167,139,250,0.25);
+    margin-bottom: 6px;
+    flex-shrink: 0;
+}
+.fl-user-name {
+    font-size: 18px; /* 依頼人名前のサイズアップ */
+    color: #4c1d95;
+    font-weight: bold;
+}
+
+.fl-user-card {
+    background: rgba(255,255,255,0.75);
+    border: 2px solid rgba(167,139,250,0.35);
+    border-radius: 16px;
+    padding: 24px; /* 空白削減のためパディングを拡大 */
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* コンテンツを引き伸ばす */
+    flex: 1;
+}
+.fl-section-title {
+    font-size: 17px; font-weight: bold; color: #6d28d9; /* 各コンテンツタイトルを大きく */
+    margin-bottom: 12px; padding-bottom: 6px;
+    border-bottom: 1px dashed rgba(167,139,250,0.4);
+}
+.fl-kin-big { font-size: 28px; color: #7c3aed; font-weight: bold; }
+.fl-seal { font-size: 14px; color: #6d28d9; font-weight: bold; margin: 4px 0; }
+.fl-type-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+    color: white; padding: 4px 14px; border-radius: 20px;
+    font-size: 13px; font-weight: bold; margin: 6px 0;
+}
+.fl-info-block { margin: 14px 0; } /* 空白削減のためマージン拡大 */
+.fl-info-block h5 { font-size: 13.5px; color: #7c3aed; margin-bottom: 6px; }
+.fl-info-block p { font-size: 14.5px; color: #555; line-height: 1.7; } /* 文字サイズと行間を拡大 */
+.fl-keywords { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.fl-kw {
+    background: rgba(139,92,246,0.15);
+    color: #6d28d9; border: 1px solid rgba(139,92,246,0.3);
+    padding: 5px 14px; border-radius: 14px; font-size: 13px; font-weight: bold; /* タグを大きく */
+}
+
+.fl-rank-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 12px; } /* gap拡大 */
+.fl-rank-item {
+    display: flex; align-items: center; gap: 14px; /* gap拡大 */
+    background: rgba(255,255,255,0.75);
+    border-radius: 12px; padding: 12px 16px; /* padding拡大 */
+    border: 1.5px solid rgba(167,139,250,0.3);
+}
+.fl-gold { border-color: rgba(251,191,36,0.4) !important; background: rgba(255,251,235,0.8) !important; }
+.fl-silver { border-color: rgba(156,163,175,0.4) !important; }
+.fl-bronze { border-color: rgba(180,83,9,0.3) !important; }
+.fl-medal { font-size: 24px; width: 28px; flex-shrink: 0; } /* メダルサイズを拡大 */
+.fl-rank-img {
+    width: 65px; height: 65px; border-radius: 50%; /* メンバー画像を大きく */
+    object-fit: cover; border: 2.5px solid white;
+    box-shadow: 0 3px 10px rgba(139,92,246,0.15);
+}
+.fl-rank-info h4 { margin: 0 0 4px; font-size: 18px; font-weight: bold; color: #333; } /* メンバー名を大きく */
+.fl-rank-tag {
+    font-size: 13px; color: #7c3aed; font-weight: bold; /* タグを大きく */
+    background: rgba(139,92,246,0.1); padding: 3px 10px;
+    border-radius: 12px; display: inline-block;
+}
+.fl-rank-score { font-size: 15px; color: #db2777; font-weight: bold; margin-top: 3px; } /* スコアを大きく */
+
+/* 右側ランキングカード（左右の高さを完全にそろえる） */
+.fl-rank-card {
+    background: rgba(255,255,255,0.75);
+    border: 2px solid rgba(167,139,250,0.35);
+    border-radius: 16px;
+    padding: 24px; /* パディングを拡大 */
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* 中身を縦方向に引き伸ばす */
+    flex: 1;
+}
+
+/* 相性ランキングのリスト構造スタイル */
+.fl-top3-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px; /* 余白を拡大 */
+    margin-bottom: 12px;
+}
+.fl-top3-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255,255,255,0.8);
+    border: 1.5px solid rgba(167,139,250,0.25);
+    border-radius: 12px;
+    padding: 12px 14px; /* パディングを拡大 */
+    box-shadow: 0 2px 6px rgba(167,139,250,0.05);
+}
+.fl-member-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2.5px solid #fff;
+    box-shadow: 0 2px 8px rgba(139,92,246,0.15);
+    flex-shrink: 0;
+}
+.fl-item-info {
+    flex-grow: 1;
+}
+.fl-member-name {
+    font-size: 15px;
+    font-weight: bold;
+    color: #333;
+}
+.fl-relation-tag {
+    font-size: 11px;
+    color: #7c3aed;
+    font-weight: bold;
+    background: rgba(139,92,246,0.1);
+    padding: 2px 8px;
+    border-radius: 10px;
+    display: inline-block;
+    margin-top: 2px;
+}
+
+.fl-sub-rank-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 2列均等配置 */
+    gap: 8px 12px; /* 高さを抑えるため上下は8pxに */
+    background: rgba(255,255,255,0.65);
+    border-radius: 12px; padding: 12px; /* パディングを少し縮小 */
+    border: 1.5px solid rgba(167,139,250,0.25);
+    margin-top: 10px;
+}
+.fl-sub-rank-item {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* 要素の間隔を少し詰める */
+    background: rgba(255,255,255,0.9);
+    border: 1.5px solid rgba(167,139,250,0.25);
+    border-radius: 10px;
+    padding: 6px 12px; /* 高さを詰めるためにパディングを調整 */
+    font-size: 14.5px; /* 文字サイズを調整 */
+    box-shadow: 0 3px 6px rgba(0,0,0,0.03);
+    box-sizing: border-box;
+}
+.fl-sub-rank-item img {
+    width: 26px; /* 画像サイズを微調整 */
+    height: 26px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1.5px solid #a78bfa;
+}
+.fl-sub-rank-num {
+    font-weight: bold;
+    color: #7c3aed;
+    font-size: 15px;
+}
+.fl-sub-rank-name {
+    color: #1e1b4b;
+    font-weight: bold;
+}
+.fl-sub-rank-score {
+    color: #db2777;
+    font-weight: bold;
+    font-size: 13.5px;
+    margin-left: 2px;
+}
+
+.fl-numa-section {
+    background: linear-gradient(135deg, rgba(109,40,217,0.08), rgba(124,58,237,0.12));
+    border: 2px solid rgba(139,92,246,0.3);
+    border-radius: 16px;
+    padding: 12px 16px; /* パディングをギュッと縮小 */
+    text-align: center;
+    margin-top: 14px; /* 上部との隙間を縮小 */
+}
+.fl-numa-label { font-size: 14px; color: #7c3aed; font-weight: bold; margin-bottom: 6px; }
+.fl-numa-type {
+    font-family: 'Yomogi', sans-serif;
+    font-size: 32px; color: #6d28d9;
+    font-weight: bold; margin: 8px 0;
+}
+.fl-numa-desc { font-size: 14.5px; color: #555; line-height: 1.8; } /* 文字サイズと行間を拡大 */
+
+/* Feeling Page 2 */
+.fl2-section { margin-bottom: 16px; }
+.fl2-section { margin-bottom: 16px; } /* 縮小：内容が充分入るように */
+.fl2-section-title { font-size: 17px; font-weight: bold; color: #6d28d9; margin-bottom: 14px; } /* コンテンツタイトル拡大 */
+.fl2-section-title { font-size: 15px; font-weight: bold; color: #6d28d9; margin-bottom: 10px; } /* Feeling P2専用タイトル */
+.fl2-analysis-grid { display: flex; gap: 10px; }
+.fl2-analysis-card {
+    flex: 1;
+    background: rgba(255,255,255,0.8);
+    border: 2px solid rgba(167,139,250,0.3);
+    border-radius: 14px;
+    padding: 14px 12px; text-align: center;
+    min-height: 210px; /* 圈内に収まるよう少し縮小 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+.fl2-card-rank { font-size: 13px; font-weight: bold; color: #7c3aed; margin-bottom: 6px; }
+.fl2-member-img {
+    width: 72px; height: 72px; border-radius: 50%; /* 2枚目のメンバー説明用画像を少し小さく */
+    object-fit: cover; border: 3px solid #fff;
+    box-shadow: 0 4px 12px rgba(139,92,246,0.22);
+    margin-bottom: 6px;
+}
+.fl2-analysis-card h4 { margin: 0 0 4px; font-size: 16px; font-weight: bold; color: #333; }
+.fl2-tag {
+    display: inline-block; background: linear-gradient(135deg, #a78bfa, #7c3aed);
+    color: white; font-size: 11px; font-weight: bold;
+    padding: 2px 10px; border-radius: 12px; margin-bottom: 6px;
+}
+.fl2-analysis-text { font-size: 12.5px; color: #555; line-height: 1.6; text-align: left; }
+
+/* 4〜6位 簡易相性カード */
+.fl2-sub-rank-grid {
+    display: flex;
+    gap: 10px;
+}
+.fl2-sub-rank-card {
+    flex: 1;
+    background: rgba(255,255,255,0.75);
+    border: 1.5px solid rgba(167,139,250,0.25);
+    border-radius: 12px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.fl2-sub-rank-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.fl2-sub-rank-img {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1.5px solid #a78bfa;
+    flex-shrink: 0;
+}
+.fl2-sub-rank-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    flex: 1;
+    min-width: 0;
+}
+.fl2-sub-rank-num {
+    font-size: 12.5px;
+    font-weight: bold;
+    color: #7c3aed;
+    white-space: nowrap;
+}
+.fl2-sub-rank-name {
+    font-size: 13px;
+    font-weight: bold;
+    color: #1e1b4b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.fl2-sub-rank-score {
+    font-size: 12px;
+    color: #db2777;
+    font-weight: bold;
+}
+.fl2-sub-rank-comment {
+    font-size: 12px;
+    color: #4b5563;
+    line-height: 1.5;
+    margin: 0;
+    background: rgba(245,243,255,0.7);
+    border-radius: 8px;
+    padding: 6px 8px;
+}
+
+.fl2-why-box {
+    background: rgba(255,255,255,0.8);
+    border: 2px solid rgba(167,139,250,0.3);
+    border-radius: 14px; padding: 14px 18px; /* 小さくして収まりを改善 */
+}
+.fl2-why-box p { font-size: 13.5px; color: #444; line-height: 1.7; }
+
+.fl2-kw-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.fl2-kw-tag {
+    background: linear-gradient(135deg, #c084fc, #a78bfa);
+    color: white; padding: 6px 18px; /* 少し小さく */
+    border-radius: 20px; font-size: 13px; font-weight: bold;
+    box-shadow: 0 3px 8px rgba(139,92,246,0.2);
+}
+
+.fl2-soul-upsell {
+    background: linear-gradient(135deg, #faf5ff, #f3e8ff);
+    border: 2px dashed #a78bfa;
+    border-radius: 14px; padding: 10px 14px; /* 小さく */
+    text-align: center; margin-top: 10px; /* 上の隔説を小さく */
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+}
+
+/* #page-feeling-2 専用レイアウト調整 */
+#page-feeling-2 .plan-header {
+    margin-bottom: 12px;
+}
+#page-feeling-2 .fl2-section {
+    margin-bottom: 14px;
+}
+
+/* TOP3カード：space-betweenをやめてflex-start+gapに変えて隙間をなくす */
+#page-feeling-2 .fl2-analysis-card {
+    min-height: unset;
+    padding: 14px 12px;
+    justify-content: flex-start; /* 上詰めで自然に並べる */
+    gap: 6px;
+}
+#page-feeling-2 .fl2-member-img {
+    width: 78px; /* 大きく！ */
+    height: 78px;
+    margin-bottom: 0;
+}
+#page-feeling-2 .fl2-analysis-card h4 {
+    font-size: 15px;
+    margin-bottom: 2px;
+}
+#page-feeling-2 .fl2-tag {
+    margin-bottom: 4px;
+}
+#page-feeling-2 .fl2-analysis-text {
+    font-size: 12px;
+    line-height: 1.55;
+}
+
+/* 4〜6位カード：アイコンを大きく */
+#page-feeling-2 .fl2-sub-rank-card {
+    padding: 10px 12px;
+    gap: 6px;
+}
+#page-feeling-2 .fl2-sub-rank-img {
+    width: 42px; /* 大きく！ */
+    height: 42px;
+}
+#page-feeling-2 .fl2-sub-rank-name {
+    font-size: 14px;
+}
+#page-feeling-2 .fl2-sub-rank-comment {
+    font-size: 12px;
+    padding: 5px 8px;
+}
+
+/* なぜ惹かれるのか・キーワード */
+#page-feeling-2 .fl2-why-box {
+    padding: 14px 18px;
+}
+#page-feeling-2 .fl2-why-box p {
+    font-size: 13px;
+    line-height: 1.65;
+}
+#page-feeling-2 .fl2-soul-upsell {
+    margin-top: 10px;
+    padding: 10px 14px;
+}
+
+/* =============================================
+   SOUL THEME
+   ============================================= */
+.soul-theme {
+    border: 3px solid rgba(139,92,246,0.4);
+    box-shadow: 0 15px 40px rgba(109,40,217,0.1);
+    color: #1a1a2e;
+}
+
+/* 各ページの背景画像を個別に設定 */
+#page-starter {
+    background: url('images/bg-starter.png') center center / 100% 100% no-repeat;
+}
+#page-feeling-1, #page-feeling-2 {
+    background: url('images/bg-feeling.png') center center / 100% 100% no-repeat;
+}
+#page-soul-1, #page-soul-2 {
+    background: url('images/bg-soul.png') center center / 100% 100% no-repeat;
+}
+
+/* sl-header styling has been unified into .plan-header */
+.sl-page-num {
+    position: absolute; top: 0; right: 0;
+    background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+    color: #fff; font-size: 11px; font-weight: bold;
+    padding: 3px 12px; border-radius: 20px;
+}
+.sl-plan-name {
+    font-family: 'Yomogi', sans-serif;
+    font-size: 32px; color: #3b0764; margin: 0;
+}
+.sl-subtitle { color: #4c1d95; font-size: 14px; margin: 4px 0 0; }
+
+.sl-relation-center {
+    display: flex; align-items: center; justify-content: center;
+    gap: 24px; margin-top: 8px; margin-bottom: 18px; /* 余白を微調整 */
+    background: rgba(255,255,255,0.55);
+    border: 1.5px solid rgba(139,92,246,0.25);
+    border-radius: 18px; padding: 20px; /* パディングを微調整 */
+}
+.sl-you-side, .sl-oshi-side {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+/* 依頼人（あなた）の画像：少し控えめに */
+.sl-you-img {
+    width: 90px !important;
+    height: 90px !important;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #c084fc;
+    box-shadow: 0 4px 12px rgba(167,139,250,0.25);
+    flex-shrink: 0;
+}
+/* 本命の推しの画像：主役として大きく強調 */
+.sl-oshi-img {
+    width: 135px !important;
+    height: 135px !important;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4.5px solid #db2777; /* 本命アピール用のパープルピンク */
+    box-shadow: 0 6px 20px rgba(219,39,119,0.3);
+    flex-shrink: 0;
+}
+.sl-you-name { text-align: center; font-size: 16px; font-weight: bold; color: #4c1d95; margin-top: 8px; }
+.sl-oshi-name { text-align: center; font-size: 20px; font-weight: bold; color: #1e1b4b; margin-top: 8px; }
+.sl-you-kin { text-align: center; font-size: 12.5px; color: #7c3aed; font-weight: bold; }
+.sl-oshi-kin { text-align: center; font-size: 14.5px; color: #db2777; font-weight: bold; }
+
+.sl-arrow-area { text-align: center; flex-shrink: 0; }
+.sl-arrow-line { font-size: 13.5px; color: #6d28d9; font-weight: bold; margin-bottom: 6px; }
+.sl-relation-label {
+    display: block; background: rgba(139,92,246,0.12);
+    border: 1px solid rgba(139,92,246,0.3);
+    color: #6d28d9; padding: 5px 14px;
+    border-radius: 12px; font-size: 13.5px; font-weight: bold;
+}
+.sl-heart { font-size: 32px; }
+
+/* 左右カラムの枠の高さを完全にそろえる */
+.sl-two-col {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 18px; /* 余白を微調整 */
+    align-items: stretch; /* 左右の高さをそろえる */
+}
+.sl-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 14px; /* 各ボックス間の隙間を広げる */
+}
+.sl-col-title { font-size: 17px; font-weight: bold; color: #4c1d95; margin-bottom: 8px; }
+.sl-col-box {
+    background: rgba(255,255,255,0.6);
+    border: 1.5px solid rgba(139,92,246,0.15);
+    border-radius: 14px;
+    padding: 18px 20px; /* パディングを拡大 */
+    flex: 1; /* カラム内で伸びるように */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.sl-col-box h5 { font-size: 15px; color: #6d28d9; margin-bottom: 6px; }
+.sl-col-box p { font-size: 14px; color: #333; line-height: 1.7; } /* 文字サイズと行間を拡大 */
+
+.sl-bond-section {
+    background: linear-gradient(135deg, rgba(139,92,246,0.08), rgba(99,102,241,0.12));
+    border: 1.5px solid rgba(139,92,246,0.25);
+    border-radius: 16px;
+    padding: 24px 20px; /* 余白拡大 */
+    margin-top: 24px; /* 上部との隙間を拡大 */
+    text-align: center;
+}
+.sl-bond-title { font-size: 17px; font-weight: bold; color: #4c1d95; margin-bottom: 6px; }
+.sl-bond-type {
+    font-family: 'Yomogi', sans-serif;
+    font-size: 32px; color: #3b0764;
+    font-weight: bold; margin: 8px 0;
+}
+.sl-bond-desc { font-size: 14.5px; color: #3b0764; line-height: 1.8; } /* 文字サイズと行間を拡大 */
+.sl-relation-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+    color: #fff; padding: 5px 16px;
+    border-radius: 20px; font-size: 13.5px; font-weight: bold; margin-bottom: 6px;
+}
+
+/* Soul Page 2 */
+.sl2-section { margin-bottom: 28px; } /* 余白を広げる */
+.sl2-section-title { font-size: 17px; font-weight: bold; color: #4c1d95; margin-bottom: 14px; } /* コンテンツタイトル大きく */
+.sl2-episode-grid { display: flex; gap: 12px; }
+.sl2-episode-card {
+    flex: 1;
+    background: rgba(255,255,255,0.6);
+    border: 1px solid rgba(139,92,246,0.15);
+    border-radius: 14px; padding: 22px 16px; text-align: center;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+.sl2-ep-icon { font-size: 32px; margin-bottom: 6px; }
+.sl2-ep-label { font-size: 14.5px; color: #6d28d9; font-weight: bold; margin-bottom: 8px; } /* ラベル大きく */
+.sl2-episode-card p { font-size: 13.5px; color: #1e1b4b; line-height: 1.7; text-align: left; }
+
+/* 感情考察ボックス */
+.sl2-emotion-box {
+    background: rgba(255,255,255,0.6);
+    border: 1.5px solid rgba(139,92,246,0.15);
+    border-radius: 14px; padding: 24px; /* パディングを広げる */
+    min-height: 120px; /* 高さを確保 */
+}
+.sl2-emotion-box p { font-size: 14.5px; color: #1e1b4b; line-height: 1.8; }
+
+/* 推し活アドバイスの横並びコンテナ (お手紙風の演出) */
+.sl2-advice-container {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+.sl2-advice-oshi-img {
+    width: 95px;
+    height: 95px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #db2777;
+    box-shadow: 0 4px 12px rgba(219,39,119,0.25);
+    flex-shrink: 0;
+}
+.sl2-advice-box {
+    flex: 1;
+    background: rgba(255,255,255,0.6);
+    border: 1.5px solid rgba(139,92,246,0.15);
+    border-radius: 14px; padding: 24px;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+}
+.sl2-advice-box p { font-size: 14.5px; color: #1e1b4b; line-height: 1.8; margin: 0; }
+
+.sl2-closing {
+    margin-top: 24px;
+    background: rgba(255,255,255,0.4);
+    border: 1px dashed rgba(139,92,246,0.3);
+    border-radius: 12px; padding: 18px; text-align: center;
+}
+.sl2-closing p { font-size: 14px; color: #3b0764; font-weight: bold; }
+
+/* === Soul Plan 依頼人画像のズーム === */
+.sl-you-img-wrapper {
+    width: 90px !important;
+    height: 90px !important;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid #c084fc;
+    box-shadow: 0 4px 12px rgba(167,139,250,0.25);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.sl-you-img {
+    width: 130px !important;
+    height: 130px !important;
+    max-width: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    object-fit: cover;
+}
+
+/* =============================================
+   印刷設定
+   ============================================= */
+@media print {
+    body, .app-container, .plan-page {
+        -webkit-print-color-adjust: exact !important; 
+        print-color-adjust: exact !important; 
+    }
+    /* 重いエフェクトを明示的に解除（無限ループ防止） */
+    .st-top3-box, .plan-page, .sl-relation-center {
+        backdrop-filter: none !important;
+        filter: none !important;
+    }
+    
+    /* A4縦サイズにピッタリ合わせ、ブラウザ標準の余白を強制無効化 */
+    @page { size: A4 portrait; margin: 0; }
+    body { background: #fff !important; margin: 0 !important; padding: 0 !important; width: 100% !important; height: auto !important; }
+    .app-container { display: block !important; padding: 0 !important; margin: 0 !important; width: 100% !important; height: auto !important; }
+    .preview-area { display: block !important; width: 100% !important; height: auto !important; padding: 0 !important; margin: 0 !important; overflow: visible !important; }
+    .canvas-wrapper { display: block !important; width: 100% !important; height: auto !important; padding: 0 !important; margin: 0 !important; }
+    .control-panel, .text-output-area, aside, button { display: none !important; }
+    
+    /* 非表示ページ */
+    .plan-page { display: none !important; }
+    
+    /* 表示対象のページ（A4サイズ） */
+    .plan-page.print-active {
+        display: block !important; /* 絶対に表示する */
+        height: auto !important;
+        box-sizing: border-box !important;
+        margin: 0 auto !important; /* 印刷領域の中央に配置 */
+        border-radius: 0 !important; /* 角丸をリセット */
+        border: none !important; /* 画面用の枠線を印刷時は消す */
+        position: relative !important;
+        page-break-after: always !important;
+        break-after: page !important;
+        max-width: none !important;
+    }
+
+    /* 印刷時の文字サイズとレイアウト微調整（用紙内に確実に収める） */
+    
+    /* 1. Soul Plan 1 (下部のはみ出し防止) */
+    #page-soul-1 .sl-relation-center {
+        margin-top: 8px !important;
+        margin-bottom: 14px !important;
+        padding: 16px !important; /* 余白を適度に縮小 */
+    }
+    #page-soul-1 .sl-you-img {
+        width: 75px !important;
+        height: 75px !important; /* 印刷時はあなたをさらに少し縮める */
+    }
+    #page-soul-1 .sl-oshi-img {
+        width: 110px !important;
+        height: 110px !important; /* 印刷時は推しを110pxに縮めて収める */
+    }
+    #page-soul-1 .sl-two-col {
+        margin-bottom: 14px !important;
+        gap: 10px !important;
+    }
+    #page-soul-1 .sl-col {
+        gap: 10px !important;
+    }
+    #page-soul-1 .sl-col-box {
+        padding: 10px 14px !important;
+    }
+    #page-soul-1 .sl-bond-section {
+        margin-top: 14px !important;
+        padding: 14px 16px !important;
+    }
+    #page-soul-1 .sl-bond-type {
+        font-size: 26px !important;
+        margin: 4px 0 !important;
+    }
+
+    /* 1.5. Soul Plan 2 (下部のはみ出し防止) */
+    #page-soul-2 .sl2-section {
+        margin-bottom: 14px !important;
+    }
+    #page-soul-2 .sl2-episode-card {
+        padding: 12px 10px !important;
+    }
+    #page-soul-2 .sl2-advice-container {
+        gap: 10px !important;
+    }
+    #page-soul-2 .sl2-advice-oshi-img {
+        width: 75px !important;
+        height: 75px !important;
+    }
+    #page-soul-2 .sl2-advice-box, #page-soul-2 .sl2-emotion-box {
+        padding: 14px 18px !important;
+        min-height: 80px !important;
+    }
+    #page-soul-2 .sl2-closing {
+        margin-top: 14px !important;
+        padding: 12px !important;
+    }
+
+    /* 2. Starter Plan (下部のはみ出し防止＆余白調整) */
+    #page-starter {
+        padding: 24px 44px 16px 32px !important; /* 右はみ出し防止のため右padding拡大 */
+    }
+    #page-starter .st-top-row {
+        gap: 8px !important;
+        margin-bottom: 6px !important;
+    }
+    #page-starter .st-avatar img {
+        width: 85px !important;
+        height: 85px !important;
+        margin-bottom: 2px !important;
+    }
+    #page-starter .st-user-desc {
+        font-size: 11px !important;
+        line-height: 1.3 !important;
+        padding: 6px !important;
+    }
+    #page-starter .st-detail-section {
+        margin-bottom: 0px !important;
+        padding: 6px 8px !important;
+    }
+    #page-starter .top3-cards-container {
+        gap: 10px !important;
+        margin-bottom: 6px !important;
+    }
+    #page-starter .top3-member-card {
+        padding: 6px !important;
+    }
+    #page-starter .top3-avatar-wrapper {
+        width: 55px !important;
+        height: 55px !important;
+        margin: 4px auto !important;
+    }
+    #page-starter .top3-avatar-wrapper img {
+        width: 55px !important;
+        height: 55px !important;
+    }
+    #page-starter .top3-name {
+        font-size: 13px !important;
+        margin-bottom: 2px !important;
+    }
+    #page-starter .top3-rank-badge {
+        top: -8px !important;
+        padding: 2px 10px !important;
+        font-size: 11px !important;
+    }
+    #page-starter .top3-desc {
+        font-size: 11px !important;
+        margin-bottom: 0 !important;
+    }
+
+    /* 2.5. Feeling Plan 1 (下部のはみ出し防止) */
+    #page-feeling-1 .fl-user-avatar-wrapper {
+        margin: 4px 0 !important;
+    }
+    #page-feeling-1 #f1-user-img {
+        width: 80px !important;
+        height: 80px !important;
+    }
+    #page-feeling-1 .fl-main-row {
+        gap: 8px !important;
+    }
+    #page-feeling-1 .fl-user-card, #page-feeling-1 .fl-rank-col {
+        padding: 12px 14px !important;
+    }
+    #page-feeling-1 .fl-sub-rank-list {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        padding: 8px !important;
+        gap: 6px 10px !important;
+        margin-top: 6px !important;
+    }
+    #page-feeling-1 .fl-sub-rank-item {
+        padding: 4px 8px !important;
+        font-size: 13px !important;
+    }
+    #page-feeling-1 .fl-sub-rank-item img {
+        width: 20px !important;
+        height: 20px !important;
+    }
+    #page-feeling-1 .fl-numa-section {
+        margin-top: 10px !important;
+        padding: 10px 14px !important;
+    }
+    #page-feeling-1 .fl-numa-desc {
+        font-size: 13.5px !important;
+        line-height: 1.5 !important;
+    }
+
+    /* 3. フッターページ番号の位置調整 */
+    .page-num-footer {
+        bottom: 15px !important;
+    }
+
+    /* 2.6. Feeling Plan 2 (下部のはみ出し防止) */
+    #page-feeling-2 .fl2-section {
+        margin-bottom: 14px !important;
+    }
+    #page-feeling-2 .fl2-analysis-card {
+        padding: 10px 10px !important;
+        min-height: 190px !important;
+    }
+    #page-feeling-2 .fl2-member-img {
+        width: 58px !important;
+        height: 58px !important;
+    }
+    #page-feeling-2 .fl2-sub-rank-card {
+        padding: 8px 10px !important;
+    }
+    #page-feeling-2 .fl2-why-box {
+        padding: 14px 18px !important;
+    }
+}
