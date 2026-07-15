@@ -658,7 +658,7 @@ function getOshiImgSrc(m) {
         return `images/User/user_${oColor}_${oGroup}.png`;
     }
     const groupFolder = m.group || 'Others';
-    return `images/${groupFolder}/${m.name}.png`;
+    return `images/${groupFolder}/${m.name}.png?v=${new Date().getTime()}`;
 }
 
 function generateCard() {
