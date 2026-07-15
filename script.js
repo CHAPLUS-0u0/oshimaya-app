@@ -1388,13 +1388,24 @@ document.addEventListener('DOMContentLoaded', () => {
                     template.style.left = '0';
                     template.style.zIndex = '-9999';
                     
+                    // 追加：画像を完全にプリロードしてhtml2canvasのフリーズを防止
+                    const snsImg = template.querySelector('img');
+                    if (snsImg && !snsImg.complete) {
+                        await new Promise(resolve => {
+                            snsImg.onload = resolve;
+                            snsImg.onerror = resolve; // エラーでも先に進める
+                        });
+                    }
+                    
                     // 描画のために少し待つ
-                    await new Promise(r => setTimeout(r, 100));
+                    await new Promise(r => setTimeout(r, 300));
                     
                     try {
                         const canvas = await html2canvas(template, {
                             scale: 2,
-                            backgroundColor: null
+                            backgroundColor: null,
+                            useCORS: true,
+                            allowTaint: true
                         });
                         
                         // 元に戻す
