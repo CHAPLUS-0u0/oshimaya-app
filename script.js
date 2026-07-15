@@ -628,11 +628,14 @@ function setEl(id, val, isHTML = false) {
     if (!el) return;
     isHTML ? el.innerHTML = val : el.textContent = val;
 }
-function setImg(id, src, fallback = 'images/user.png') {
+function setImg(id, src, fallback = 'images/User/user.png') {
     const el = document.getElementById(id);
     if (!el) return;
     el.src = src;
-    el.onerror = function() { this.src = fallback; };
+    el.onerror = function() {
+        this.onerror = null; // 無限ループ防止
+        this.src = fallback;
+    };
 }
 
 // カスタム推しの画像判定ロジック
@@ -998,15 +1001,50 @@ function generateDeliveryText(planType, userName, userKin, userSeal, userTone, r
 
     // SNS用テキストの生成
     const snsTextEl = document.getElementById('sns-output-text');
+    // 3〜5回に1回程度の確率（約25%）で自己紹介を含める
+    const includeIntro = Math.random() < 0.25;
+    
     if (snsTextEl) {
         let snsBody = "";
+        const introText = includeIntro ? `私のマヤ暦基本タイプは「${userSeal}」✨\n` : '';
         if (planType === 'low') {
-            snsBody = `私のマヤ暦基本タイプは「${userSeal}」✨\n最も感情が共鳴するメンバーTOP3は…\n🥇 ${rankings[0].name} (${rankings[0].score}%)\n🥈 ${rankings[1].name}\n🥉 ${rankings[2].name}\n\n特に ${rankings[0].name} とは【${rankings[0].emotionTag}】で、無意識に惹かれ合っちゃう関係性みたいです♡`;
+            snsBody = `${introText}最も感情が共鳴するメンバーTOP3は…\n🥇 ${rankings[0].name} (${rankings[0].score}%)\n🥈 ${rankings[1].name}\n🥉 ${rankings[2].name}\n\n特に ${rankings[0].name} とは【${rankings[0].emotionTag}】で、無意識に惹かれ合っちゃう関係性みたいです♡`;
         } else {
-            snsBody = `私のマヤ暦基本タイプは「${userSeal}」✨\n最も感情が共鳴するメンバーは ${rankings[0].name} (${rankings[0].score}%) でした！\n【${rankings[0].emotionTag}】な関係性で、お互いの感情の波長がピッタリ合うみたいです♡\n${targetMember ? `「${targetMember.type}」の絆でさらに深く繋がれるかも🔮` : ''}`;
+            snsBody = `${introText}最も感情が共鳴するメンバーは ${rankings[0].name} (${rankings[0].score}%) でした！\n【${rankings[0].emotionTag}】な関係性で、お互いの感情の波長がピッタリ合うみたいです♡\n${targetMember ? `「${targetMember.type}」の絆でさらに深く繋がれるかも🔮` : ''}`;
         }
         const snsText = `🔮 推しマヤ相性診断 🔮\n私と「${oshi.group || oshi.name}」の相性を診断してみたよ！\n\n${snsBody}\n\nみんなも推しとの相性をチェックしてみてね👇\n#推しマヤ #推し活 #マヤ暦 #${oshi.name}`;
         snsTextEl.value = snsText;
+    }
+
+    // AI用プロンプトの生成
+    const aiPromptEl = document.getElementById('ai-prompt-output-text');
+    if (aiPromptEl) {
+        const aiPrompt = `以下の記事の内容をイメージした挿絵を作成してください。
+文章の出来事をそのまま描くのではなく、記事を読んだ人が「この二人の関係性」を直感的にエモく感じられるイラストにしてください。
+
+【画風・スタイル】
+・韓国のWebtoon（ウェブマンガ）風の美麗な2Dデジタルイラスト
+・雑誌の表紙のような上品で洗練されたデザイン
+・透明感があり、柔らかい光に包まれている
+・ラベンダー、白、淡いゴールドを基調としたカラーパレット
+
+【構図・世界観】
+・二人が自然に視線を交わす、または同じ方向を見つめている構図
+・背景はシンプルに（星や光の粒が舞う幻想的な空間）
+・アスペクト比は縦長（4:5）
+
+【必須の制約事項（超重要）】
+・後でこちらで文字を合成するため、人物は中央より少し下や横にずらし、「文字を載せられる広い余白（空や背景のみの空間）」をしっかりと確保すること。
+・画像内には「文字・テキスト・アルファベット・記号」を絶対に一切描画しないでください。
+
+【今回のキャラクターと感情指定】
+・人物：記事に登場する二人をイメージしたキャラクター（本人そのままではなく、雰囲気を美しく擬人化した韓国風デザイン）
+・表情・空気感：${targetMember ? targetMember.emotionTag : ''}の感情、${kwSet[0]}・${kwSet[1]}の空気を、二人のポーズや表情で自然に表現してください。
+
+■ 記事の要約または感情のキーワード：
+${targetMember ? targetMember.desc.replace(/\\n/g, ' ') : ''}
+${targetMember ? targetMember.oshiReason.replace(/\\n/g, ' ') : ''}`;
+        aiPromptEl.value = aiPrompt;
     }
 }
 
@@ -1032,8 +1070,48 @@ document.addEventListener('DOMContentLoaded', () => {
             if (snsText) {
                 snsText.select();
                 document.execCommand('copy');
-                copySnsBtn.textContent = "SNS用テキストをコピーしました！ ✅";
-                setTimeout(() => { copySnsBtn.textContent = "SNS用テキストをコピーする 📱"; }, 2000);
+                copySnsBtn.textContent = "コピーしました！ ✅";
+                setTimeout(() => { copySnsBtn.textContent = "SNS用テキストをコピー 📱"; }, 2000);
+            }
+        });
+    }
+
+    const clearTextBtn = document.getElementById('clear-text-btn');
+    if (clearTextBtn) {
+        clearTextBtn.addEventListener('click', () => {
+            if(confirm('納品用テキストをクリアしてもよろしいですか？')) {
+                document.getElementById('delivery-text').value = '';
+            }
+        });
+    }
+
+    const clearSnsBtn = document.getElementById('clear-sns-btn');
+    if (clearSnsBtn) {
+        clearSnsBtn.addEventListener('click', () => {
+            if(confirm('SNS用テキストをクリアしてもよろしいですか？')) {
+                document.getElementById('sns-output-text').value = '';
+            }
+        });
+    }
+
+    const copyPromptBtn = document.getElementById('copy-prompt-btn');
+    if (copyPromptBtn) {
+        copyPromptBtn.addEventListener('click', () => {
+            const promptText = document.getElementById('ai-prompt-output-text');
+            if (promptText) {
+                promptText.select();
+                document.execCommand('copy');
+                copyPromptBtn.textContent = "コピーしました！ ✅";
+                setTimeout(() => { copyPromptBtn.textContent = "プロンプトをコピー 🎨"; }, 2000);
+            }
+        });
+    }
+
+    const clearPromptBtn = document.getElementById('clear-prompt-btn');
+    if (clearPromptBtn) {
+        clearPromptBtn.addEventListener('click', () => {
+            if(confirm('プロンプトをクリアしてもよろしいですか？')) {
+                document.getElementById('ai-prompt-output-text').value = '';
             }
         });
     }
@@ -1174,11 +1252,34 @@ document.addEventListener('DOMContentLoaded', () => {
         dashReloadBtn.addEventListener('click', loadDashboardData);
     }
 
-    async function loadDashboardData() {
-        dashLoading.style.display = 'block';
-        dashError.style.display = 'none';
-        dashCardsContainer.innerHTML = '';
-        dashReloadBtn.disabled = true;
+    async function loadDashboardData(isBackgroundPrefetch = false) {
+        const CACHE_KEY = 'oshi_maya_dashboard_cache';
+        const cachedStr = localStorage.getItem(CACHE_KEY);
+        let hasCache = false;
+
+        // バックグラウンド取得でない場合はUIを更新
+        if (!isBackgroundPrefetch) {
+            dashError.style.display = 'none';
+            dashReloadBtn.disabled = true;
+            
+            if (cachedStr) {
+                try {
+                    const cachedData = JSON.parse(cachedStr);
+                    renderDashboardCards(cachedData);
+                    hasCache = true;
+                    dashLoading.style.display = 'block';
+                    dashLoading.innerHTML = '<span style="color:#8b5cf6;">最新データを裏側で同期中...✨</span>';
+                } catch (e) {
+                    console.error("Cache read error", e);
+                }
+            }
+
+            if (!hasCache) {
+                dashLoading.style.display = 'block';
+                dashLoading.textContent = "データを読み込んでいます...⏳";
+                dashCardsContainer.innerHTML = '';
+            }
+        }
 
         try {
             // GASからGETリクエストでデータを取得
@@ -1188,15 +1289,17 @@ document.addEventListener('DOMContentLoaded', () => {
             let data;
             try {
                 data = JSON.parse(text);
+                // 成功したらキャッシュを保存
+                localStorage.setItem(CACHE_KEY, JSON.stringify(data));
             } catch (e) {
-                // GASのURLが正しく設定されていない（POST専用になっている）場合のエラー処理
                 if (text.includes("This is a webhook URL for POST requests only") || text.includes("webhook")) {
                     console.warn("GAS URL is currently POST only. Showing demo data.");
                     data = [
                         { rowId: 2, scheduleTime: "2026/06/30 19:00", snsText: "【テスト用デモデータ1】\nGAS（スプレッドシート連携）が未設定のため、テスト用データを表示しています。\nレイアウトやボタンの動作確認にお使いください！", status: "未承認" },
                         { rowId: 3, scheduleTime: "2026/07/01 12:00", snsText: "【テスト用デモデータ2】\n本番環境では、ここにAIが自動生成したテキストが入ります！", status: "承認済み" }
                     ];
-                    alert("⚠️ GAS（スプレッドシート）の設定が未完了のため、テスト用のダミーデータを表示します。");
+                    localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+                    if (!isBackgroundPrefetch) alert("⚠️ GAS（スプレッドシート）の設定が未完了のため、テスト用のダミーデータを表示します。");
                 } else {
                     throw new Error("不正なデータが返されました: " + text.substring(0, 30) + "...");
                 }
@@ -1204,16 +1307,28 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if(data.error) throw new Error(data.error);
 
-            renderDashboardCards(data);
+            // バックグラウンド取得でない場合、または現在ダッシュボードを開いている場合は再描画
+            if (!isBackgroundPrefetch || dashboardView.style.display === 'block') {
+                renderDashboardCards(data);
+            }
         } catch (error) {
             console.error("データ取得エラー:", error);
-            dashError.textContent = "データの取得に失敗しました。時間をおいて再試行するか、GASのURLとコードが正しく設定されているか確認してください。(" + error.message + ")";
-            dashError.style.display = 'block';
+            if (!isBackgroundPrefetch && !hasCache) {
+                dashError.textContent = "データの取得に失敗しました。(" + error.message + ")";
+                dashError.style.display = 'block';
+            }
         } finally {
-            dashLoading.style.display = 'none';
-            dashReloadBtn.disabled = false;
+            if (!isBackgroundPrefetch) {
+                dashLoading.style.display = 'none';
+                dashReloadBtn.disabled = false;
+            }
         }
     }
+
+    // アプリ起動から3秒後に、裏側でこっそりデータを先読み（プリフェッチ）しておく
+    setTimeout(() => {
+        loadDashboardData(true);
+    }, 3000);
 
     function renderDashboardCards(data) {
         if(!data || data.length === 0) {
@@ -1273,13 +1388,24 @@ document.addEventListener('DOMContentLoaded', () => {
                     template.style.left = '0';
                     template.style.zIndex = '-9999';
                     
+                    // 追加：画像を完全にプリロードしてhtml2canvasのフリーズを防止
+                    const snsImg = template.querySelector('img');
+                    if (snsImg && !snsImg.complete) {
+                        await new Promise(resolve => {
+                            snsImg.onload = resolve;
+                            snsImg.onerror = resolve; // エラーでも先に進める
+                        });
+                    }
+                    
                     // 描画のために少し待つ
-                    await new Promise(r => setTimeout(r, 100));
+                    await new Promise(r => setTimeout(r, 300));
                     
                     try {
                         const canvas = await html2canvas(template, {
                             scale: 2,
-                            backgroundColor: null
+                            backgroundColor: null,
+                            useCORS: true,
+                            allowTaint: true
                         });
                         
                         // 元に戻す
