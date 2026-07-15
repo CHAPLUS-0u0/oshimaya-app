@@ -1,4 +1,4 @@
-const CACHE_NAME = 'oshimaya-v3';
+const CACHE_NAME = 'oshimaya-v4';
 const urlsToCache = [
   './',
   './index.html',
@@ -15,8 +15,14 @@ self.addEventListener('install', event => {
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(urlsToCache))
-      .catch(err => console.warn('Cache install error', err))
+      .then(cache => {
+        // addAllだと1つでも失敗するとインストール全体が失敗するため、個別にキャッシュする
+        return Promise.all(
+          urlsToCache.map(url => {
+            return cache.add(url).catch(err => console.warn('Failed to cache', url, err));
+          })
+        );
+      })
   );
 });
 
