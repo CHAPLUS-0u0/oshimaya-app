@@ -1456,6 +1456,7 @@ ${seal2}
 
                 <div style="margin-bottom:10px;">
                     <label style="font-size:12px; font-weight:bold; color:#555;">Threads用テキスト (B列)</label>
+                    <span id="sns-count-${item.rowId}" style="display:block; text-align:right; font-size:12px; font-weight:bold; color:#555; margin-bottom:4px;"></span>
                     <textarea id="sns-text-${item.rowId}" style="width:100%; height:120px; padding:8px; border:1px solid #ccc; border-radius:4px; font-family:inherit; resize:vertical;">${item.snsText}</textarea>
                 </div>
 
@@ -1468,6 +1469,21 @@ ${seal2}
                 </div>
             `;
             dashCardsContainer.appendChild(card);
+        });
+
+        // 投稿文の文字数カウンター（Threadsは500文字まで。超えたら赤く表示）
+        document.querySelectorAll('textarea[id^="sns-text-"]').forEach(textarea => {
+            const counter = document.getElementById('sns-count-' + textarea.id.replace('sns-text-', ''));
+            if (!counter) return;
+            const updateCount = () => {
+                const len = textarea.value.length;
+                counter.textContent = len > 500
+                    ? "⚠️ " + len + "文字：" + (len - 500) + "文字オーバー。Threadsは500文字までなので、削ってから承認してください"
+                    : len + " / 500文字";
+                counter.style.color = len > 500 ? '#ef4444' : '#555';
+            };
+            textarea.addEventListener('input', updateCount);
+            updateCount();
         });
 
         // ボタンのイベントリスナー設定

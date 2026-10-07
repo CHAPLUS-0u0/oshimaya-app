@@ -13,6 +13,9 @@ const SHEET_NAME = 'シート1'; // ※実際のシート名に合わせて変�
 const IMAGE_FOLDER_ID = "1UEbbuc3K_iDTFnBBQo41MICXtqmRpMUp"; 
 const MAKE_WEBHOOK_URL = "https://hook.us2.make.com/0scht9wj1pzlnkjj9llwo9n4y53wpj9j";
 
+// Threadsは1投稿500文字まで。数え方のズレに備えて少し余裕を持たせた上限
+const POST_MAX_LENGTH = 450;
+
 
 function runAutonomousAgent() {
   try {
@@ -91,6 +94,9 @@ function runAutonomousAgent() {
     
     var parsedOutput = JSON.parse(aiOutput);
 
+    // 投稿文がThreadsの文字数上限を超えていたら、AIに短くし直してもらう（それでもダメなら文の切れ目で切る）
+    parsedOutput.sns_post_text = fitToPostLimit(parsedOutput.sns_post_text);
+
     // 3. スプレッドシート（ダッシュボード）に書き込む
     var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
     if (!sheet) {
@@ -119,6 +125,41 @@ function runAutonomousAgent() {
   }
 }
 
+
+// 投稿文を POST_MAX_LENGTH 文字以内に収める（収まらなければ切らずに警告ログだけ残す）
+function fitToPostLimit(text) {
+  text = String(text || "").trim();
+
+  // AIは文字数を数えるのが苦手なので、超えていたら「短くして」と頼み直す（最大2回）
+  for (var attempt = 0; attempt < 2 && text.length > POST_MAX_LENGTH; attempt++) {
+    try {
+      var rewritePrompt =
+        "次の投稿文を、意味・口調・雰囲気を保ったまま、ハッシュタグも含めて" + POST_MAX_LENGTH + "文字以内に短くしてください。" +
+        "現在は" + text.length + "文字です。前置きや説明は書かず、書き直した投稿文だけを出力してください。\n\n" + text;
+      var res = UrlFetchApp.fetch(
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + GEMINI_API_KEY,
+        {
+          method: "post",
+          contentType: "application/json",
+          payload: JSON.stringify({ contents: [{ parts: [{ text: rewritePrompt }] }] }),
+          muteHttpExceptions: true
+        }
+      );
+      var shortened = JSON.parse(res.getContentText()).candidates[0].content.parts[0].text.trim();
+      if (shortened) text = shortened;
+    } catch (err) {
+      Logger.log("短縮リトライ失敗 (" + (attempt + 1) + "回目): " + err.message);
+      break;
+    }
+  }
+
+  // それでも長い場合は、文章を読めなくなるので切らずにそのまま返す。
+  // ダッシュボードの文字数カウンターが赤く警告するので、人の手で削ってから承認する。
+  if (text.length > POST_MAX_LENGTH) {
+    Logger.log("警告：投稿文が" + text.length + "文字あり、上限(" + POST_MAX_LENGTH + "文字)を超えています。ダッシュボードで削ってください。");
+  }
+  return text;
+}
 
 // ==========================================
 // ここから下：ダッシュボード連携用（GET / POST）
