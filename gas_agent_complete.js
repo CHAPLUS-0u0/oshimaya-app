@@ -41,7 +41,9 @@ function runAutonomousAgent() {
   "episode_summary": "（画像生成用のタイトルとして15文字前後で短くキャッチーに。例：IN THE SOOPでのあの夜）",
   "relation_type": "（例：補い合う、惹かれ合う、似た者同士、刺激し合う、自由×見守る、正反対、など二人の関係を表す短い分類）",
   "relation_word": "（例：自然と支え合う2人、静と動の名コンビなど12〜15文字程度の関係性キャッチコピー）",
-  "sns_post_text": "（※ハッシュタグ込みで必ず400文字以内に収めること。ThreadsやXにそのまま投稿する文章。過度な感嘆符や絵文字は避け、推しへの深い愛とマヤ暦の神秘性をしっとりと語る、大人向けで落ち着いたトーンの考察文。ハッシュタグも含む）"
+  "sns_post_text": "（※ハッシュタグ込みで必ず400文字以内に収めること。ThreadsやXにそのまま投稿する文章。過度な感嘆符や絵文字は避け、推しへの深い愛とマヤ暦の神秘性をしっとりと語る、大人向けで落ち着いたトーンの考察文。ハッシュタグも含む）",
+  "image_scene": "（画像生成AIに渡す場面の描写。上のエピソードから『絵になる具体的な行動の一瞬』を1つだけ選び、2人の距離・視線・体の向き・手の位置・表情・場所・光を、人物名は使わず『人物A』『人物B』で描写する。人物Aはtarget_membersの1人目、人物Bは2人目。実際にあったシーンに基づき、100〜150文字。画像に入れる文字やセリフは含めない）",
+  "image_emotion": "（その場面で最も表現したい感情を一言で。例：安心感、信頼、共鳴、刺激、憧れ、無邪気さ、緊張感）"
 }
     `;
 
@@ -115,7 +117,9 @@ function runAutonomousAgent() {
       "Threads",                            // E列: SNS
       parsedOutput.episode_summary,         // F列: タイトル（ダッシュボードの画像生成用）
       parsedOutput.relation_type || "",     // G列: 関係性タイプ
-      parsedOutput.relation_word || ""      // H列: 関係性キャッチコピー
+      parsedOutput.relation_word || "",     // H列: 関係性キャッチコピー
+      parsedOutput.image_scene || "",       // I列: 画像用の場面描写（画像プロンプトの「行動・エピソード」に入る）
+      parsedOutput.image_emotion || ""      // J列: 画像で表現したい感情
     ]);
 
     Logger.log("成功！AIが記事を執筆し、スプレッドシートに追加しました。");
@@ -196,7 +200,9 @@ function doGet(e) {
         title: row[5] || "",          // F列: 画像生成用のタイトル
         status: row[3] || "AI承認待ち", // D列: ステータス
         relationType: row[6] || "",   // G列: 関係性タイプ
-        relationWord: row[7] || ""    // H列: 関係性キャッチコピー
+        relationWord: row[7] || "",   // H列: 関係性キャッチコピー
+        imageScene: row[8] || "",     // I列: 画像用の場面描写
+        imageEmotion: row[9] || ""    // J列: 画像で表現したい感情
       });
     }
   });
