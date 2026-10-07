@@ -640,25 +640,36 @@ function setImg(id, src, fallback = 'images/User/user.png') {
 
 // カスタム推しの画像判定ロジック
 function getOshiImgSrc(m) {
+    let rawSrc = "";
     if (m.isCustom) {
-        if (m.image) return m.image;
-        // 汎用画像を計算
-        let oColor = 'white';
-        const colorRem = m.kin % 4;
-        if (colorRem === 1) oColor = 'red';
-        else if (colorRem === 2) oColor = 'white';
-        else if (colorRem === 3) oColor = 'blue';
-        else if (colorRem === 0) oColor = 'yellow';
+        if (m.image) {
+            rawSrc = m.image;
+        } else {
+            // 汎用画像を計算
+            let oColor = 'white';
+            const colorRem = m.kin % 4;
+            if (colorRem === 1) oColor = 'red';
+            else if (colorRem === 2) oColor = 'white';
+            else if (colorRem === 3) oColor = 'blue';
+            else if (colorRem === 0) oColor = 'yellow';
 
-        const oTone = (m.kin % 13) || 13;
-        let oGroup = 'soft';
-        if ([1, 5, 9, 13].includes(oTone)) oGroup = 'active';
-        else if ([4, 8, 12].includes(oTone)) oGroup = 'smart';
-        
-        return `images/User/user_${oColor}_${oGroup}.png`;
+            const oTone = (m.kin % 13) || 13;
+            let oGroup = 'soft';
+            if ([1, 5, 9, 13].includes(oTone)) oGroup = 'active';
+            else if ([4, 8, 12].includes(oTone)) oGroup = 'smart';
+            
+            rawSrc = `images/User/user_${oColor}_${oGroup}.png`;
+        }
+    } else {
+        const groupFolder = m.group || 'Others';
+        rawSrc = `images/${groupFolder}/${m.name}.png`;
     }
-    const groupFolder = m.group || 'Others';
-    return `images/${groupFolder}/${m.name}.png`;
+    
+    // Base64アセットが読み込まれている場合はそちらを優先（CORS/Tainted Canvas回避）
+    if (window.IMAGE_ASSETS && window.IMAGE_ASSETS[rawSrc]) {
+        return window.IMAGE_ASSETS[rawSrc];
+    }
+    return rawSrc;
 }
 
 function generateCard() {
@@ -1231,6 +1242,7 @@ document.addEventListener('DOMContentLoaded', () => {
             modeGenBtn.style.color = '#fff';
             modeDashBtn.style.background = '#e2e8f0';
             modeDashBtn.style.color = '#333';
+            localStorage.setItem('oshi_maya_active_tab', 'gen');
         });
 
         modeDashBtn.addEventListener('click', () => {
@@ -1240,10 +1252,16 @@ document.addEventListener('DOMContentLoaded', () => {
             modeDashBtn.style.color = '#fff';
             modeGenBtn.style.background = '#e2e8f0';
             modeGenBtn.style.color = '#333';
+            localStorage.setItem('oshi_maya_active_tab', 'dash');
             
             // タブを開いた時に自動で読み込む
             loadDashboardData();
         });
+        
+        // ページ読み込み時に前回のタブを復元
+        if (localStorage.getItem('oshi_maya_active_tab') === 'dash') {
+            modeDashBtn.click();
+        }
     }
 
     // データ読み込み
@@ -1331,6 +1349,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 3000);
 
     function renderDashboardCards(data) {
+        // 毎回コンテナをクリアする（重複描画とイベントリスナーの多重登録を防ぐ）
+        dashCardsContainer.innerHTML = '';
+
         if(!data || data.length === 0) {
             dashCardsContainer.innerHTML = '<p style="text-align:center; color:#888;">現在、承認待ちの記事はありません✨</p>';
             return;
@@ -1345,6 +1366,72 @@ document.addEventListener('DOMContentLoaded', () => {
             const d = new Date(item.scheduleTime);
             const timeStr = isNaN(d.getTime()) ? item.scheduleTime : `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
 
+            // --- メンバー情報のパースとプロンプト生成 ---
+            const membersRaw = item.targetMembers || "";
+            let promptText = "プロンプトを生成できませんでした（メンバー情報不足）";
+            if (membersRaw.includes("&")) {
+                const parts = membersRaw.split("&").map(s => s.trim());
+                const findOshi = (query) => {
+                    const q = query.toLowerCase();
+                    for (let key in oshiData) {
+                        if (key.toLowerCase() === q || oshiData[key].name.toLowerCase() === q) {
+                            return oshiData[key];
+                        }
+                    }
+                    return null;
+                };
+                const oshi1 = findOshi(parts[0]);
+                const oshi2 = findOshi(parts[1]);
+                if (oshi1 && oshi2) {
+                    const kin1 = oshi1.kin;
+                    const kin2 = oshi2.kin;
+                    const seal1 = getSealName(getSealNumber(kin1));
+                    const seal2 = getSealName(getSealNumber(kin2));
+                    const rType = item.relationType || "未知のケミ";
+                    const rWord = item.relationWord || "無限の可能性";
+
+                    promptText = `「推しマヤ」のThreads投稿に添える、2人のKINと関係性を視覚化した1枚のイラスト。
+
+【デザインコンセプト】
+テーマは「推し活 × 人物研究 × KIN」
+占い感・スピリチュアル感を前面に出さず、大人が見てもおしゃれな「人物相関図」「関係性研究カード」のような世界観。
+
+【固定するデザイン】
+・縦長のSNS投稿画像
+・背景は温かみのあるアイボリー〜オフホワイト
+・上部中央に小さく「OSHI × MAYA」、その下に「推しマヤ相関図」
+・人物Aを左、人物Bを右に配置
+・左右対称を基本としたレイアウト、余白を活かしたミニマルなデザイン
+
+【イラストの固定タッチ】
+・透明感のある水彩＋繊細な線画
+・ファッション誌の人物イラストのような洗練された雰囲気
+・淡いにじみや水彩紙の質感、肌や髪は柔らかなグラデーション
+・色彩は低〜中彩度（アイボリー、グレージュ、くすみブルー、くすみピンク、セージなど）
+・アニメ、漫画、ちびキャラ、3D風にはしない。過剰な光沢は避ける。静かで上品。
+
+【今回の関係性ビジュアル（中央）】
+関係性タイプ：${rType}
+中央のビジュアル：関係性タイプに合わせた図式
+中央のメインワード：「${rWord}」
+
+【人物情報】
+左：
+（※「A:」などの記号は一切含めず、名前の文字だけを書いてください）
+${oshi1.name}
+KIN ${kin1}
+${seal1}
+
+右：
+（※「B:」などの記号は一切含めず、名前の文字だけを書いてください）
+${oshi2.name}
+KIN ${kin2}
+${seal2}
+
+文字情報は詰め込みすぎず、エピソードの詳細は描かない。上品でおしゃれな相関図イラストにしてください。`;
+                }
+            }
+
             card.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:1px solid #eee; padding-bottom:10px;">
                     <div style="font-size:12px; color:#666;">
@@ -1357,12 +1444,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 
                 <div style="margin-bottom:10px;">
+                    <label style="font-size:12px; font-weight:bold; color:#555;">画像生成用プロンプト (ChatGPT等へコピペ用)</label>
+                    <textarea id="img-prompt-${item.rowId}" style="width:100%; height:120px; padding:8px; border:1px solid #ccc; border-radius:4px; font-family:inherit; resize:vertical;">${promptText}</textarea>
+                    <button class="dash-action-btn copy-prompt-btn" data-row="${item.rowId}" style="margin-top:5px; padding:4px 8px; background:#8b5cf6; color:white; border:none; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold;">📋 プロンプトをコピー</button>
+                </div>
+
+                <div style="margin-bottom:10px; background:#f9fafb; padding:10px; border-radius:4px; border:1px dashed #cbd5e1;">
+                    <label style="font-size:12px; font-weight:bold; color:#555; display:block; margin-bottom:5px;">生成した画像をアップロード 🖼️</label>
+                    <input type="file" id="img-upload-${item.rowId}" accept="image/*" style="font-size:12px;" />
+                </div>
+
+                <div style="margin-bottom:10px;">
                     <label style="font-size:12px; font-weight:bold; color:#555;">Threads用テキスト (B列)</label>
                     <textarea id="sns-text-${item.rowId}" style="width:100%; height:120px; padding:8px; border:1px solid #ccc; border-radius:4px; font-family:inherit; resize:vertical;">${item.snsText}</textarea>
                 </div>
 
                 <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:10px;">
-                    <button class="dash-action-btn gen-img-btn" data-row="${item.rowId}" data-title="${item.title || '尊すぎる2人のケミ考察'}" style="padding:6px 12px; background:#8b5cf6; color:white; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">🖼️ 画像を生成＆ダウンロード</button>
+                    <!-- 古い画像生成ボタンは非表示にします -->
+                    <!-- <button class="dash-action-btn gen-img-btn" ...>🖼️ 画像を生成＆ダウンロード</button> -->
                     <button class="dash-action-btn botu-btn" data-row="${item.rowId}" style="padding:6px 12px; background:#ef4444; color:white; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">🗑️ ボツ</button>
                     <button class="dash-action-btn save-btn" data-row="${item.rowId}" style="padding:6px 12px; background:#3b82f6; color:white; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">💾 上書き保存</button>
                     <button class="dash-action-btn approve-btn" data-row="${item.rowId}" style="padding:6px 12px; background:#10b981; color:white; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">✅ 承認する (投稿予約)</button>
@@ -1374,13 +1473,135 @@ document.addEventListener('DOMContentLoaded', () => {
         // ボタンのイベントリスナー設定
         document.querySelectorAll('.dash-action-btn.gen-img-btn').forEach(btn => {
             btn.addEventListener('click', async (e) => {
-                const title = e.target.getAttribute('data-title');
-                const rowId = e.target.getAttribute('data-row');
-                const titleEl = document.getElementById('sns-template-title');
-                const template = document.getElementById('sns-image-template');
-                
-                if (titleEl && template) {
-                    titleEl.textContent = title;
+                const originalText = e.target.textContent;
+                e.target.textContent = "⏳ 生成中...";
+                e.target.disabled = true;
+                e.target.style.opacity = "0.7";
+
+                try {
+                    const title = e.target.getAttribute('data-title');
+                    const rowId = e.target.getAttribute('data-row');
+                    const titleEl = document.getElementById('sns-template-title');
+                    const template = document.getElementById('sns-image-template');
+                    
+                    if (!template) {
+                        alert("画像テンプレートが見つかりません。");
+                        e.target.textContent = "画像生成失敗";
+                        e.target.disabled = false;
+                        e.target.style.opacity = "1";
+                        return;
+                    }
+                    
+                    if (titleEl) {
+                        titleEl.textContent = title;
+                    }
+                    
+                    // --- メンバー情報のパースと反映 ---
+                    const membersRaw = e.target.getAttribute('data-members') || "";
+                    let member1Name = "OSHI 1";
+                    let member2Name = "OSHI 2";
+                    let m1Data = null;
+                    let m2Data = null;
+
+                    // "Jimin & V" などの文字列から抽出
+                    if (membersRaw.includes("&")) {
+                        const parts = membersRaw.split("&").map(s => s.trim());
+                        // 大文字小文字を無視して oshiData から検索
+                        const findOshi = (query) => {
+                            const q = query.toLowerCase();
+                            for (let key in oshiData) {
+                                if (key.toLowerCase() === q || oshiData[key].name.toLowerCase() === q) {
+                                    return { key: key, data: oshiData[key] };
+                                }
+                            }
+                            return null;
+                        };
+                        
+                        const res1 = findOshi(parts[0]);
+                        const res2 = findOshi(parts[1]);
+                        
+                        if (res1) { m1Data = res1; member1Name = res1.data.name; } else { member1Name = parts[0]; }
+                        if (res2) { m2Data = res2; member2Name = res2.data.name; } else { member2Name = parts[1]; }
+                    } else if (membersRaw) {
+                        member1Name = membersRaw;
+                    }
+                    
+                    // DOMの書き換え
+                    if(document.getElementById('sns-name-1')) document.getElementById('sns-name-1').textContent = member1Name;
+                    if(document.getElementById('sns-name-2')) document.getElementById('sns-name-2').textContent = member2Name;
+                    if(document.getElementById('sns-profile-title-1')) document.getElementById('sns-profile-title-1').textContent = `👤 ${member1Name.toUpperCase()} PROFILE`;
+                    if(document.getElementById('sns-profile-title-2')) document.getElementById('sns-profile-title-2').textContent = `👤 ${member2Name.toUpperCase()} PROFILE`;
+                    
+                    const img1 = document.getElementById('sns-img-1');
+                    const fb1 = document.getElementById('sns-img-1-fallback');
+                    const img2 = document.getElementById('sns-img-2');
+                    const fb2 = document.getElementById('sns-img-2-fallback');
+                    
+                    // 前回の画像が残っているのをリセット
+                    if(img1) { img1.removeAttribute('src'); img1.style.display = "none"; }
+                    if(fb1) fb1.style.display = "flex";
+                    if(img2) { img2.removeAttribute('src'); img2.style.display = "none"; }
+                    if(fb2) fb2.style.display = "flex";
+                    
+                    if(document.getElementById('sns-kin-1')) document.getElementById('sns-kin-1').textContent = "KIN: ---";
+                    if(document.getElementById('sns-seal-1')) document.getElementById('sns-seal-1').textContent = "---";
+                    if(document.getElementById('sns-trait-1')) document.getElementById('sns-trait-1').textContent = "---";
+                    
+                    if(document.getElementById('sns-kin-2')) document.getElementById('sns-kin-2').textContent = "KIN: ---";
+                    if(document.getElementById('sns-seal-2')) document.getElementById('sns-seal-2').textContent = "---";
+                    if(document.getElementById('sns-trait-2')) document.getElementById('sns-trait-2').textContent = "---";
+                    
+                    if(document.getElementById('sns-relation-badge')) document.getElementById('sns-relation-badge').textContent = "相性";
+                    if(document.getElementById('sns-relation-text')) document.getElementById('sns-relation-text').textContent = "相性";
+                    
+                    let imagesToPreload = [];
+                    
+                    if (m1Data && getOshiImgSrc) {
+                        const src1 = getOshiImgSrc(m1Data.data);
+                        if(img1) {
+                            img1.src = src1;
+                            img1.style.display = 'block';
+                            imagesToPreload.push(img1);
+                        }
+                        if(fb1) fb1.style.display = 'none';
+                        if(document.getElementById('sns-kin-1')) document.getElementById('sns-kin-1').textContent = `KIN: ${m1Data.data.kin}`;
+                        if(document.getElementById('sns-seal-1')) document.getElementById('sns-seal-1').textContent = getSealName(getSealNumber(m1Data.data.kin));
+                        if(document.getElementById('sns-trait-1')) document.getElementById('sns-trait-1').textContent = getSealName(getSealNumber(m1Data.data.kin));
+                    }
+                    
+                    if (m2Data && getOshiImgSrc) {
+                        const src2 = getOshiImgSrc(m2Data.data);
+                        if(img2) {
+                            img2.src = src2;
+                            img2.style.display = 'block';
+                            imagesToPreload.push(img2);
+                        }
+                        if(fb2) fb2.style.display = 'none';
+                        if(document.getElementById('sns-kin-2')) document.getElementById('sns-kin-2').textContent = `KIN: ${m2Data.data.kin}`;
+                        if(document.getElementById('sns-seal-2')) document.getElementById('sns-seal-2').textContent = getSealName(getSealNumber(m2Data.data.kin));
+                        if(document.getElementById('sns-trait-2')) document.getElementById('sns-trait-2').textContent = getSealName(getSealNumber(m2Data.data.kin));
+                    }
+                    
+                    if (m1Data && m2Data && typeof getRelationship === 'function') {
+                        const rel = getRelationship(m1Data.data.kin, m2Data.data.kin, m2Data.data.name, m2Data.data.trait);
+                        let relBadge = "前向きチャージ";
+                        if (rel.type.includes("神秘")) relBadge = "神秘キン (引力MAX)";
+                        else if (rel.type.includes("類似") || rel.type.includes("以心伝心")) relBadge = "類似キン (以心伝心)";
+                        else if (rel.type.includes("反対") || rel.type.includes("光")) relBadge = "反対キン (刺激的)";
+                        else if (rel.type.includes("同じ紋章")) relBadge = "同じ紋章 (絶対的癒し)";
+                        else if (rel.type.includes("同じ音")) relBadge = "同じ音 (波長一致)";
+                        
+                        if(document.getElementById('sns-relation-badge')) document.getElementById('sns-relation-badge').textContent = relBadge;
+                        if(document.getElementById('sns-relation-text')) document.getElementById('sns-relation-text').textContent = relBadge;
+                        
+                        if(document.getElementById('sns-rel-type')) document.getElementById('sns-rel-type').textContent = rel.type;
+                        if(document.getElementById('sns-rel-desc')) document.getElementById('sns-rel-desc').textContent = rel.desc;
+                    } else {
+                        if(document.getElementById('sns-rel-type')) document.getElementById('sns-rel-type').textContent = "未知数のケミ";
+                        if(document.getElementById('sns-rel-desc')) document.getElementById('sns-rel-desc').textContent = "無限の可能性を秘めた唯一無二の関係性！";
+                        if(document.getElementById('sns-relation-text')) document.getElementById('sns-relation-text').textContent = "未知のケミ";
+                    }
+
                     const originalLeft = template.style.left;
                     const originalZ = template.style.zIndex;
                     
@@ -1389,13 +1610,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     template.style.zIndex = '-9999';
                     
                     // 追加：画像を完全にプリロードしてhtml2canvasのフリーズを防止
-                    const snsImg = template.querySelector('img');
-                    if (snsImg && !snsImg.complete) {
-                        await new Promise(resolve => {
-                            snsImg.onload = resolve;
-                            snsImg.onerror = resolve; // エラーでも先に進める
-                        });
-                    }
+                    const promises = imagesToPreload.map(img => {
+                        if (!img.complete) {
+                            return new Promise(resolve => {
+                                img.onload = resolve;
+                                img.onerror = resolve; // エラーでも先に進める
+                            });
+                        }
+                        return Promise.resolve();
+                    });
+                    await Promise.all(promises);
                     
                     // 描画のために少し待つ
                     await new Promise(r => setTimeout(r, 300));
@@ -1421,25 +1645,45 @@ document.addEventListener('DOMContentLoaded', () => {
                         e.target.textContent = '✅ ダウンロード完了！';
                         setTimeout(() => { e.target.textContent = '🖼️ 画像を生成＆ダウンロード'; }, 2000);
                     } catch (error) {
-                        template.style.left = originalLeft;
                         template.style.zIndex = originalZ;
                         console.error('画像生成エラー:', error);
-                        alert('画像の生成に失敗しました。');
+                        alert('画像の生成に失敗しました。\nエラー詳細: ' + error.message);
+                        e.target.disabled = false;
+                        e.target.style.opacity = "1";
+                        e.target.textContent = '🖼️ 画像を生成＆ダウンロード';
                     }
+                } catch (globalErr) {
+                    console.error("画像生成の前処理エラー:", globalErr);
+                    e.target.textContent = "画像生成失敗";
+                    e.target.disabled = false;
+                    e.target.style.opacity = "1";
+                }
+            });
+        });
+
+        document.querySelectorAll('.copy-prompt-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const rowId = e.target.getAttribute('data-row');
+                const textarea = document.getElementById(`img-prompt-${rowId}`);
+                if(textarea) {
+                    textarea.select();
+                    document.execCommand('copy');
+                    const originalText = e.target.textContent;
+                    e.target.textContent = '✅ コピー完了！ChatGPT等に貼り付けてください';
+                    setTimeout(() => {
+                        e.target.textContent = originalText;
+                    }, 3000);
                 }
             });
         });
 
         document.querySelectorAll('.dash-action-btn').forEach(btn => {
-            // 画像生成ボタンには適用しない
-            if (btn.classList.contains('gen-img-btn')) return;
+            // 画像生成関連ボタンには適用しない
+            if (btn.classList.contains('gen-img-btn') || btn.classList.contains('copy-prompt-btn')) return;
 
             btn.addEventListener('click', async (e) => {
                 const rowId = e.target.getAttribute('data-row');
                 const snsText = document.getElementById(`sns-text-${rowId}`).value;
-                // note用記事は今回は表示していないため、元のままにするか空で更新するかですが、
-                // GETの際に持っていないので、とりあえずそのままの想定。
-                // 実際はスプレッドシート側でセル更新時に注意が必要（今回はsnsTextとstatusのみ送る）
                 
                 let actionStatus = "";
                 if(e.target.classList.contains('botu-btn')) actionStatus = "ボツ";
@@ -1450,30 +1694,83 @@ document.addEventListener('DOMContentLoaded', () => {
                     if(!confirm("この記事をボツ（削除扱い）にしてもよろしいですか？")) return;
                 }
 
+                // 「承認済み」なら、ネット通信を始める前に画像の添付をチェックする
+                // （ここで弾かないと、画像が無いのにステータスだけ「承認済み」になってしまう）
+                let base64Image = null;
+                if (actionStatus === "承認済み") {
+                    const uploadInput = document.getElementById('img-upload-' + rowId);
+                    if (!uploadInput || !uploadInput.files || !uploadInput.files[0]) {
+                        alert("Make(Threads)へ投稿するための画像が添付されていません！\n上に表示されたプロンプトを使ってAIで画像を生成し、ファイルをアップロードしてから承認してください。");
+                        return;
+                    }
+                    const file = uploadInput.files[0];
+                    const reader = new FileReader();
+                    try {
+                        base64Image = await new Promise((resolve, reject) => {
+                            reader.onload = (ev) => resolve(ev.target.result);
+                            reader.onerror = (err) => reject(err);
+                            reader.readAsDataURL(file);
+                        });
+                    } catch (readErr) {
+                        console.error("画像の読み込みに失敗:", readErr);
+                        alert("画像の読み込みに失敗しました。別のファイルで試してください。");
+                        return;
+                    }
+                }
+
                 e.target.disabled = true;
                 const originalText = e.target.innerHTML;
                 e.target.innerHTML = "⏳ 送信中...";
 
                 try {
-                    // APIにPOST送信
-                    const res = await fetch(GAS_URL, {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            action: "update",
-                            rowId: rowId,
-                            snsText: snsText,
-                            blogText: "", // note用は今回はダッシュボード外なので空文字を送る（GAS側で判定が必要ですが、今回は簡単のため）
-                            status: actionStatus
-                        })
-                    });
-                    
-                    // fetch のレスポンスを待たずに成功として扱う（CORS回避のため）
-                    // ※実際は mode: 'no-cors' だとステータス読めないが、ここではJSON返却を許可している前提
-                    alert(actionStatus === "ボツ" ? "ボツにしました" : (actionStatus === "承認済み" ? "承認しました！自動投稿を待ちます。" : "保存しました。"));
+                    // 1. スプレッドシートのステータスを更新する通信
+                    //    GASの/execはPOSTのレスポンスにCORSヘッダを返さないため no-cors で投げる。
+                    //    no-corsだとレスポンス本文は読めない（opaque）ので、投げっぱなしで成功扱いにする。
+                    try {
+                        await fetch(GAS_URL, {
+                            method: 'POST',
+                            mode: 'no-cors',
+                            body: JSON.stringify({
+                                action: "update",
+                                rowId: rowId,
+                                snsText: snsText,
+                                blogText: "",
+                                status: actionStatus
+                            })
+                        });
+                    } catch (e1) {
+                        // ステータス更新が失敗しても、下のMake送信は必ず試す
+                        console.warn("ステータス更新の送信に失敗（Make送信は続行）:", e1);
+                    }
+
+                    // 2. 「承認済み」の場合のみ、画像＋テキストをMake(Threads)へ送信する
+                    if (actionStatus === "承認済み") {
+                        e.target.innerHTML = "⏳ Makeへ送信中...";
+
+                        await fetch(GAS_URL, {
+                            method: 'POST',
+                            mode: 'no-cors',
+                            body: JSON.stringify({
+                                image: base64Image,
+                                text: snsText,
+                                // 即時投稿の想定。文字列"now"はMake側で日時パースできないため現在時刻のISO文字列を渡す
+                                time: new Date().toISOString(),
+                                sns: 'threads'
+                            })
+                        });
+                    }
+
+                    if (actionStatus === "ボツ") {
+                        alert("ボツにしました");
+                    } else if (actionStatus === "承認済み") {
+                        alert("承認しました！Makeを通じてThreadsへ自動投稿されます✨\n（反映されない場合はMake.comの実行履歴を確認してください）");
+                    } else {
+                        alert("保存しました。");
+                    }
                     loadDashboardData(); // 再読み込み
                 } catch(error) {
-                    console.error(error);
-                    alert("更新に失敗しました。");
+                    console.error("Dashboard update error:", error);
+                    alert("更新に失敗しました。\n詳細: " + error.message);
                     e.target.disabled = false;
                     e.target.innerHTML = originalText;
                 }

@@ -135,10 +135,20 @@
     align-items: center;
     border-radius: 50%;
 }
+/* 共通: すべての画像はアスペクト比を維持して枠を埋める */
 .st-avatar img, .top3-avatar-wrapper img, .f1-user-avatar-wrapper img, .fl-img-wrapper img, .fl2-img-wrapper img, .sl-you-img-wrapper img, .sl-oshi-img-wrapper img, .sl2-advice-oshi-img-wrapper img, .fl-sub-img-wrap img {
     object-fit: cover;
+}
+/* 推し画像: 顔のサイズ感を統一するために少しズームして上部に合わせる */
+.top3-avatar-wrapper img, .fl-img-wrapper img, .fl2-img-wrapper img, .sl-oshi-img-wrapper img, .sl2-advice-oshi-img-wrapper img, .fl-sub-img-wrap img {
     object-position: top center;
-    transform: scale(1.3);
+    transform: scale(1.2);
+}
+/* 依頼者画像: そのまま枠に綺麗に収める（ズームしない） */
+.st-avatar img, .f1-user-avatar-wrapper img, .sl-you-img-wrapper img {
+    object-position: center;
+    width: 100%;
+    height: 100%;
 }
 .st-avatar img {
     width: 125px; height: 125px; /* アバターサイズを拡大 */
@@ -304,11 +314,10 @@
     border-bottom: 1.5px dashed rgba(167,139,250,0.3);
     padding-bottom: 12px;
 }
-.fl-user-avatar {
-    width: 90px;
-    height: 90px;
+.f1-user-avatar-wrapper {
+    width: 120px;
+    height: 120px;
     border-radius: 50%;
-    object-fit: cover;
     border: 3.5px solid #fff;
     box-shadow: 0 4px 12px rgba(167,139,250,0.25);
     margin-bottom: 6px;

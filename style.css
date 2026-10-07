@@ -30,7 +30,7 @@ body {
 .control-panel {
     width: 320px;
     background-color: #fff;
-    padding: 2rem 1.5rem 2rem 1rem; /* 左側の余白を減らし、入力エリアを左に広げる */
+    padding: 2rem 1.5rem 2rem 1rem; /* 左側の余白を減らし、�E力エリアを左に庁E��めE*/
     box-shadow: 2px 0 10px rgba(0,0,0,0.05);
     z-index: 10;
     flex-shrink: 0;
@@ -63,7 +63,7 @@ body {
     font-size: 1rem;
 }
 
-.primary-btn, .secondary-btn {
+.primary-btn, .secondary-btn { white-space: nowrap;
     width: 100%;
     padding: 1rem;
     background-color: var(--primary-color);
@@ -76,7 +76,7 @@ body {
     transition: background-color 0.3s, transform 0.1s;
 }
 
-.secondary-btn {
+.secondary-btn { white-space: nowrap;
     background-color: #ffb6c1;
     margin-top: 10px;
 }
@@ -94,7 +94,7 @@ body {
     align-items: center;
     background-color: var(--bg-color);
     padding: 2rem;
-    overflow: auto; /* 画面が小さい時に縦横スクロールさせる */
+    overflow: auto; /* 画面が小さぁE��に縦横スクロールさせめE*/
 }
 
 .canvas-wrapper {
@@ -110,13 +110,13 @@ body {
 .report-card {
     width: 1000px;
     font-family: 'Kiwi Maru', 'Zen Maru Gothic', sans-serif;
-    /* 胸が高鳴るドリーミーなパステルカラーグラデーション背景！ */
+    /* 胸が高鳴るドリーミ�EなパスチE��カラーグラチE�Eション背景�E�E*/
     background: linear-gradient(135deg, #fef2f2 0%, #fff1f2 30%, #faf5ff 70%, #f3e8ff 100%) !important;
     border-radius: 30px;
     box-shadow: 0 15px 45px rgba(183, 148, 244, 0.15);
-    padding: 20px; /* 縦スペース節約 */
+    padding: 20px; /* 縦スペ�Eス節紁E*/
     border: 3px solid rgba(253, 164, 175, 0.4) !important;
-    /* パープルの星屑のような可愛い水玉模様 */
+    /* パ�Eプルの星屑�Eような可愛い水玉模槁E*/
     background-image: radial-gradient(rgba(183, 148, 244, 0.18) 1.5px, transparent 1.5px) !important;
     background-size: 20px 20px;
     background-position: -10px -10px;
@@ -126,7 +126,7 @@ body {
 
 .report-header {
     text-align: center;
-    margin-bottom: 12px; /* 30px -> 12px (縦スペース節約) */
+    margin-bottom: 12px; /* 30px -> 12px (縦スペ�Eス節紁E */
 }
 
 .header-badges {
@@ -195,8 +195,8 @@ body {
 
 /* Left: User Box */
 .user-box {
-    flex: 1.1; /* 左側をスリムに戻す */
-    align-self: flex-start; /* 縦の長さをコンテンツに合わせて短縮し、不要な縦伸びを防ぐ */
+    flex: 1.1; /* 左側をスリムに戻ぁE*/
+    align-self: flex-start; /* 縦の長さをコンチE��チE��合わせて短縮し、不要な縦伸びを防ぁE*/
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -249,15 +249,15 @@ body {
 
 /* Right: TOP3 Box */
 .top3-box {
-    flex: 2.3; /* ランキング側をさらに横に広げる */
+    flex: 2.3; /* ランキング側をさらに横に庁E��めE*/
     display: flex;
     flex-direction: column;
     background: rgba(255, 255, 255, 0.5) !important;
-    overflow: hidden; /* コンテナ内での見切れを防ぐ */
+    overflow: hidden; /* コンチE��冁E��の見�Eれを防ぁE*/
 }
 
 /* --- Relationship Map (相関図) --- */
-/* --- TOP3 メンバーカード並び --- */
+/* --- TOP3 メンバ�Eカード並び --- */
 .top3-cards-container {
     display: flex;
     justify-content: space-between;
@@ -451,7 +451,7 @@ body {
 
 .detail-bubble {
     background: #fff0f5;
-    padding: 8px 12px; /* 15px 20px -> 8px 12px (縦スペース節約) */
+    padding: 8px 12px; /* 15px 20px -> 8px 12px (縦スペ�Eス節紁E */
     border-radius: 10px;
     font-size: 13px; /* 14px -> 13px */
     line-height: 1.4;
@@ -511,7 +511,7 @@ body {
     margin-top: 8px;
     font-size: 11px;
     line-height: 1.5;
-    color: #b794f4; /* デザインテーマに馴染む優しいパープル */
+    color: #b794f4; /* チE��インチE�Eマに馴染�E優しいパ�Eプル */
     border-top: 1px dashed var(--border-color);
     padding-top: 6px;
     text-align: justify;
@@ -523,7 +523,7 @@ body {
     max-width: 800px;
 }
 
-/* デコレーションパーツ（星・ハート・ベア） */
+/* チE��レーションパ�EチE��星・ハ�Eト�Eベア�E�E*/
 .deco-sparkle {
     position: absolute;
     opacity: 0.85;
@@ -534,7 +534,7 @@ body {
     animation: floatDeco 4s ease-in-out infinite alternate;
 }
 
-/* 個別のパーツ配置位置 */
+/* 個別のパ�EチE�E置位置 */
 .sparkle-1 { top: 15px; left: 15px; font-size: 28px; animation-duration: 3s; }
 .sparkle-2 { top: 12px; right: 150px; font-size: 24px; animation-duration: 4.5s; }
 .sparkle-3 { top: 60px; right: 25px; font-size: 30px; animation-duration: 3.5s; }
@@ -549,7 +549,7 @@ body {
     100% { transform: translateY(-8px) rotate(10deg) scale(1.1); }
 }
 
-/* --- 全体ランキング表示エリア (4位〜7位) --- */
+/* --- 全体ランキング表示エリア (4位、E佁E --- */
 .full-ranking-area {
     margin-top: 12px;
     background: rgba(255, 255, 255, 0.45);
@@ -614,7 +614,7 @@ body {
     font-weight: bold;
 }
 
-/* --- 本命推し特別深掘り鑑定 --- */
+/* --- 本命推し特別深掘り鑑宁E--- */
 .deepdive-section {
     margin-top: 15px;
 }
@@ -685,7 +685,7 @@ body {
 
 /* --- A4 Printable Styles (Ctrl+P / window.print) --- */
 @media print {
-    /* 背景色やグラデーションを強制的に印刷 */
+    /* 背景色めE��ラチE�Eションを強制皁E��印刷 */
     * {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
@@ -720,7 +720,7 @@ body {
         display: none !important;
     }
     
-    /* 診断カードをA4用紙いっぱいに広げる */
+    /* 診断カードをA4用紙いっぱぁE��庁E��めE*/
     .report-card {
         width: 100% !important;
         min-height: 280mm !important; /* A4縦の高さに合わせる */
@@ -728,7 +728,7 @@ body {
         flex-direction: column !important;
         justify-content: space-between !important;
         margin: 0 !important;
-        padding: 25px 15px !important; /* 縦の余白を少し増やして下を埋める */
+        padding: 25px 15px !important; /* 縦の余白を少し増やして下を埋めめE*/
         box-sizing: border-box !important;
         zoom: 1 !important;
         transform: none !important;
@@ -741,14 +741,14 @@ body {
         background-position: -10px -10px !important;
     }
 
-    /* 内部要素が広がりすぎないように調整 */
+    /* 冁E��要素が庁E��りすぎなぁE��ぁE��調整 */
     .report-row {
-        flex: 1; /* 行の高さをフレックスに保つ */
-        margin-bottom: 25px !important; /* 行間を広げて下を埋める */
+        flex: 1; /* 行�E高さをフレチE��スに保つ */
+        margin-bottom: 25px !important; /* 行間を庁E��て下を埋めめE*/
     }
 
     .report-section {
-        margin-bottom: 25px !important; /* セクション間を広げて下を埋める */
+        margin-bottom: 25px !important; /* セクション間を庁E��て下を埋めめE*/
     }
 
     /* はみ出し防止の微調整 */
@@ -758,7 +758,7 @@ body {
         margin-bottom: 15px !important;
     }
 
-    /* --- 印刷時のフォントサイズ・余白を大幅に拡大（A4縦に読みやすく満たすため） --- */
+    /* --- 印刷時�Eフォントサイズ・余白を大幁E��拡大�E�E4縦に読みめE��く満たすため�E�E--- */
     .report-header h2 { font-size: 42px !important; }
     .report-header h2 span { font-size: 54px !important; }
     .report-header p { font-size: 20px !important; margin-top: 10px !important; margin-bottom: 10px !important; }
@@ -771,7 +771,7 @@ body {
     .tag { font-size: 18px !important; padding: 8px 24px !important; }
     .user-desc { font-size: 18px !important; line-height: 1.6 !important; padding: 15px !important; margin-top: 15px !important; }
     
-        /* TOP3 カード印刷設定 */
+        /* TOP3 カード印刷設宁E*/
     .top3-cards-container {
         gap: 20px !important;
         margin-bottom: 20px !important;
@@ -835,7 +835,7 @@ body {
         max-width: 60px !important;
     }
 
-    /* 本命推し深掘りコーナーの印刷調整 */
+    /* 本命推し深掘りコーナ�Eの印刷調整 */
     .deepdive-box {
         padding: 20px 25px !important;
         border-width: 3px !important;
@@ -873,7 +873,7 @@ body {
     .compatibility-note { font-size: 14px !important; margin-top: 15px !important; padding-top: 15px !important; line-height: 1.6 !important; }
 }
 
-/* --- アップセル導線バナー（Starter/Feeling） --- */
+/* --- アチE�Eセル導線バナ�E�E�Etarter/Feeling�E�E--- */
 .upsell-banner {
     background: linear-gradient(135deg, #fff5f5 0%, #fff1f2 50%, #fef2f2 100%) !important;
     border: 2px dashed #f472b6 !important;
@@ -941,7 +941,7 @@ body {
 }
 
 
-/* --- Soul Plan (特別デザイン仕様) プレミアムスキン --- */
+/* --- Soul Plan (特別チE��イン仕槁E プレミアムスキン --- */
 .report-card.plan-soul {
     background: linear-gradient(135deg, #0f0b29 0%, #1f0c35 40%, #3b0944 85%, #18052e 100%) !important;
     background-image: radial-gradient(rgba(251, 191, 36, 0.25) 1.5px, transparent 1.5px) !important;
@@ -952,7 +952,7 @@ body {
     color: #f3e8ff !important;
 }
 
-/* Soul Plan 時のヘッダー */
+/* Soul Plan 時�Eヘッダー */
 .plan-soul .report-header h2 {
     color: #fef08a !important;
     text-shadow: 0 0 10px rgba(254, 240, 138, 0.4) !important;
@@ -973,7 +973,7 @@ body {
     box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);
 }
 
-/* Soul Plan 時のコンテンツボックス */
+/* Soul Plan 時�EコンチE��チE�EチE��ス */
 .plan-soul .report-box {
     background: rgba(26, 18, 48, 0.78) !important;
     border: 2px solid rgba(251, 191, 36, 0.35) !important;
@@ -1015,7 +1015,7 @@ body {
     color: #d8b4fe !important;
 }
 
-/* Soul Plan 時の詳細セクション */
+/* Soul Plan 時�E詳細セクション */
 .plan-soul .detail-section {
     background: rgba(22, 14, 46, 0.8) !important;
     border-color: rgba(251, 191, 36, 0.3) !important;
@@ -1045,7 +1045,7 @@ body {
     content: "👑" !important;
 }
 
-/* Soul Plan 時の本命深掘りセクション */
+/* Soul Plan 時�E本命深掘りセクション */
 .plan-soul .deepdive-section {
     border-color: rgba(251, 191, 36, 0.3) !important;
     background: rgba(22, 14, 46, 0.8) !important;
@@ -1099,7 +1099,7 @@ body {
     color: #e9d5ff !important;
 }
 
-/* Soul Plan 時のフッター */
+/* Soul Plan 時�Eフッター */
 .plan-soul .report-footer {
     background: rgba(26, 18, 48, 0.85) !important;
     border-color: rgba(251, 191, 36, 0.35) !important;
@@ -1144,4 +1144,10 @@ body {
     .plan-soul .report-footer {
         border-color: rgba(251, 191, 36, 0.4) !important;
     }
+}
+
+/* Fix button widths in text output area */
+#clear-sns-btn, #clear-text-btn, #clear-prompt-btn {
+    width: auto !important;
+    flex-shrink: 0;
 }
