@@ -1698,6 +1698,12 @@ ${seal2}
                 // （ここで弾かないと、画像が無いのにステータスだけ「承認済み」になってしまう）
                 let base64Image = null;
                 if (actionStatus === "承認済み") {
+                    // Threadsは1投稿500文字まで。超えるとBuffer側で400エラーになるので送る前に止める
+                    const THREADS_MAX_LENGTH = 500;
+                    if (snsText.length > THREADS_MAX_LENGTH) {
+                        alert("投稿文が長すぎます（" + snsText.length + "文字）。\nThreadsは" + THREADS_MAX_LENGTH + "文字までなので、" + (snsText.length - THREADS_MAX_LENGTH) + "文字以上削ってから承認してください。");
+                        return;
+                    }
                     const uploadInput = document.getElementById('img-upload-' + rowId);
                     if (!uploadInput || !uploadInput.files || !uploadInput.files[0]) {
                         alert("Make(Threads)へ投稿するための画像が添付されていません！\n上に表示されたプロンプトを使ってAIで画像を生成し、ファイルをアップロードしてから承認してください。");
