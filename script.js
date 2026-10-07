@@ -1369,6 +1369,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // --- メンバー情報のパースとプロンプト生成 ---
             const membersRaw = item.targetMembers || "";
             let promptText = "プロンプトを生成できませんでした（メンバー情報不足）";
+            let refImagesHtml = ""; // 画像生成AIに一緒に添付する、2人のキャラクター参考画像
             if (membersRaw.includes("&")) {
                 const parts = membersRaw.split("&").map(s => s.trim());
                 const findOshi = (query) => {
@@ -1385,6 +1386,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (oshi1 && oshi2) {
                     const rType = item.relationType || "未知のケミ";
                     const rWord = item.relationWord || "無限の可能性";
+
+                    // 参考画像：サイトに入っているキャラクター画像（Base64ではなく通常のパスで軽く表示する）
+                    refImagesHtml = [oshi1, oshi2].map((o, idx) => {
+                        const path = o.isCustom ? (o.image || "") : `images/${o.group || 'Others'}/${o.name}.png`;
+                        if (!path) return "";
+                        const src = path.startsWith("data:") ? path : encodeURI(path);
+                        const label = (idx === 0 ? "1枚目（人物A）" : "2枚目（人物B）") + "：" + o.name;
+                        return `<a href="${src}" download="${idx + 1}_${o.name}.png" title="クリックで画像を保存" style="text-align:center; text-decoration:none; color:#555; font-size:11px; font-weight:bold;">
+                            <img src="${src}" style="width:80px; height:80px; object-fit:cover; border-radius:6px; border:1px solid #ddd; display:block; margin-bottom:3px;">
+                            <span>${label}</span><br><span style="color:#8b5cf6;">⬇ 保存</span>
+                        </a>`;
+                    }).join("");
 
                     // 人物の欄：名前・雰囲気に加えて、画像に小さく添えるKIN番号と太陽の紋章名も渡す
                     const personDesc = (o) => `${o.name}（${o.group || "推し"}）／雰囲気・性格：${o.trait || "（未設定）"}
@@ -1423,6 +1436,18 @@ ${rType}（${rWord}）
 
 今回もっとも表現したい感情：
 ${emotionText}
+
+
+【人物の見た目（最重要）】
+
+添付した2枚の画像は、人物Aと人物Bのキャラクターデザインの基準です。
+（1枚目＝人物A、2枚目＝人物B）
+
+・髪型、髪色、顔立ち、目元、輪郭、全体の雰囲気を、添付画像にできるだけ忠実に揃えて描いてください。
+・服装、場所、ポーズ、表情は、今回の行動に合わせて自由に変えて構いません。
+・添付画像のタッチ（顔のアップの水彩画）をそのまま写すのではなく、
+　「人物の特徴」だけを引き継いで、下の【画風】の絵柄で描いてください。
+・添付画像と似ていない別人になってしまった場合は、描き直してください。
 
 
 【最初に内部で考えること】
@@ -1567,18 +1592,29 @@ Threads本文を読んだあとにもう一度見ると、
 画像内に入れてよい文字は、次の3種類だけです。
 
 ・タイトル「OSHI × MAYA」
-　画面の端に、ごく小さく控えめに添える
+　画面の上端か下端に添える
 
-・それぞれの人物の「KIN番号」（例：KIN 173）
-　その人物の近くに、小さなキャプションとして添える
+・それぞれの人物の「KIN番号」
+　その人物の近くに添える
 
-・それぞれの人物の「太陽の紋章名」（例：青い夜）
-　KIN番号の下に、さらに小さく添える
+・それぞれの人物の「太陽の紋章名」
+　KIN番号のすぐ下に添える
+
+KIN番号・紋章名は、上の【今回の入力】にある「画像に添える文字」の表記を、
+一字も変えず、誤字なく正確に入れてください。
 
 上記以外の文字（人物名、診断結果、関係性の説明文、セリフ、Threads本文の引用など）は、一切入れません。
 
-文字は雑誌のキャプションのように小さく、イラストの邪魔をしない位置に置き、
-文字が主役にならないようにしてください。
+【文字の大きさと見やすさ】
+スマートフォンのThreadsのタイムラインで、拡大しなくても読める大きさにしてください。
+・KIN番号：画像の高さの5%以上（1080px四方なら55px以上）
+・太陽の紋章名：画像の高さの4%以上（1080px四方なら45px以上）
+・タイトル「OSHI × MAYA」：画像の高さの3.5%以上
+・太めで読みやすいゴシック系の書体
+・背景に対して十分なコントラストを確保する（明るい背景には濃い色、暗い部分には白）
+・文字の下に、半透明の無地の薄いプレートを敷いてもよい
+・人物の顔や、行動の中心になる手元には重ねない
+文字は読めることが最優先です。ただし、イラストの主役を奪わない位置と配色にしてください。
 
 画像だけで興味を引き、
 意味や診断結果はThreads本文で伝えます。
@@ -1668,6 +1704,11 @@ AIっぽい演出があれば、
                     <label style="font-size:12px; font-weight:bold; color:#555;">画像生成用プロンプト (ChatGPT等へコピペ用)</label>
                     <textarea id="img-prompt-${item.rowId}" style="width:100%; height:120px; padding:8px; border:1px solid #ccc; border-radius:4px; font-family:inherit; resize:vertical;">${promptText}</textarea>
                     <button class="dash-action-btn copy-prompt-btn" data-row="${item.rowId}" style="margin-top:5px; padding:4px 8px; background:#8b5cf6; color:white; border:none; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold;">📋 プロンプトをコピー</button>
+                    ${refImagesHtml ? `
+                    <div style="margin-top:8px; background:#faf5ff; padding:8px; border-radius:6px; border:1px dashed #d8b4fe;">
+                        <div style="font-size:12px; font-weight:bold; color:#6b21a8; margin-bottom:6px;">🎨 参考画像（プロンプトと一緒にChatGPT等へ添付。1枚目→2枚目の順に）</div>
+                        <div style="display:flex; gap:14px;">${refImagesHtml}</div>
+                    </div>` : ""}
                 </div>
 
                 <div style="margin-bottom:10px; background:#f9fafb; padding:10px; border-radius:4px; border:1px dashed #cbd5e1;">

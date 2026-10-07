@@ -96,7 +96,7 @@ function runAutonomousAgent() {
     
     var parsedOutput = JSON.parse(aiOutput);
 
-    // 投稿文がThreadsの文字数上限を超えていたら、AIに短くし直してもらう（それでもダメなら文の切れ目で切る）
+    // 投稿文がThreadsの文字数上限を超えていたら、AIに短くし直してもらう（それでも長ければ切らずに警告ログだけ残す）
     parsedOutput.sns_post_text = fitToPostLimit(parsedOutput.sns_post_text);
 
     // 3. スプレッドシート（ダッシュボード）に書き込む
