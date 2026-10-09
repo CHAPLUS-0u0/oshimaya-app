@@ -1370,6 +1370,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const membersRaw = item.targetMembers || "";
             let promptText = "プロンプトを生成できませんでした（メンバー情報不足）";
             let refImagesHtml = ""; // 画像生成AIに一緒に添付する、2人のキャラクター参考画像
+            let hairInputsHtml = ""; // この時期の髪型・髪色を入れる欄（入力するとプロンプトに反映）
             if (membersRaw.includes("&")) {
                 const parts = membersRaw.split("&").map(s => s.trim());
                 const findOshi = (query) => {
@@ -1397,6 +1398,14 @@ document.addEventListener('DOMContentLoaded', () => {
                             <img src="${src}" style="width:80px; height:80px; object-fit:cover; border-radius:6px; border:1px solid #ddd; display:block; margin-bottom:3px;">
                             <span>${label}</span><br><span style="color:#8b5cf6;">⬇ 保存</span>
                         </a>`;
+                    }).join("");
+
+                    // 髪型・髪色の入力欄（人物A/B）。入力内容は、プロンプト内の「・人物Aの髪型・髪色：」行に反映する
+                    hairInputsHtml = [oshi1, oshi2].map((o, idx) => {
+                        const side = idx === 0 ? "A" : "B";
+                        return `<label style="display:block; font-size:11px; font-weight:bold; color:#555; margin-top:6px;">人物${side}（${o.name}）のこの時期の髪型・髪色
+                            <input type="text" class="hair-input" data-row="${item.rowId}" data-side="${side}" placeholder="例：シルバーグレーのゆるいウェーブ" style="width:100%; box-sizing:border-box; padding:5px 8px; margin-top:2px; border:1px solid #d8b4fe; border-radius:4px; font-size:12px; font-family:inherit;">
+                        </label>`;
                     }).join("");
 
                     // 人物の欄：名前・雰囲気に加えて、画像に小さく添えるKIN番号と太陽の紋章名も渡す
@@ -1440,14 +1449,20 @@ ${emotionText}
 
 【人物の見た目（最重要）】
 
-添付した2枚の画像は、人物Aと人物Bのキャラクターデザインの基準です。
-（1枚目＝人物A、2枚目＝人物B）
+顔立ち・目元・輪郭・全体の雰囲気は、
+あらかじめ共有しているキャラクター画像（人物A・人物Bの基本デザイン）に合わせてください。
+今回この指示に画像が添付されている場合は、1枚目＝人物A、2枚目＝人物Bとして同じ扱いにしてください。
 
-・髪型、髪色、顔立ち、目元、輪郭、全体の雰囲気を、添付画像にできるだけ忠実に揃えて描いてください。
+・髪型と髪色は時期によって変わります。下の「今回の髪型・髪色」に指定がある場合は、
+　キャラクター画像の髪よりも、その指定を最優先してください。指定が「（指定なし）」の場合は、キャラクター画像の髪に合わせてください。
 ・服装、場所、ポーズ、表情は、今回の行動に合わせて自由に変えて構いません。
-・添付画像のタッチ（顔のアップの水彩画）をそのまま写すのではなく、
+・キャラクター画像のタッチ（顔のアップの水彩画）をそのまま写すのではなく、
 　「人物の特徴」だけを引き継いで、下の【画風】の絵柄で描いてください。
-・添付画像と似ていない別人になってしまった場合は、描き直してください。
+・基本デザインと似ていない別人になってしまった場合は、描き直してください。
+
+今回の髪型・髪色（この時期の姿）：
+・人物Aの髪型・髪色：（指定なし）
+・人物Bの髪型・髪色：（指定なし）
 
 
 【最初に内部で考えること】
@@ -1706,8 +1721,12 @@ AIっぽい演出があれば、
                     <button class="dash-action-btn copy-prompt-btn" data-row="${item.rowId}" style="margin-top:5px; padding:4px 8px; background:#8b5cf6; color:white; border:none; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold;">📋 プロンプトをコピー</button>
                     ${refImagesHtml ? `
                     <div style="margin-top:8px; background:#faf5ff; padding:8px; border-radius:6px; border:1px dashed #d8b4fe;">
-                        <div style="font-size:12px; font-weight:bold; color:#6b21a8; margin-bottom:6px;">🎨 参考画像（プロンプトと一緒にChatGPT等へ添付。1枚目→2枚目の順に）</div>
+                        <div style="font-size:12px; font-weight:bold; color:#6b21a8; margin-bottom:6px;">🎨 基本のキャラ画像（最初に1回ChatGPT等へ共有しておけば、毎回の添付は不要）</div>
                         <div style="display:flex; gap:14px;">${refImagesHtml}</div>
+                        <div style="margin-top:8px; border-top:1px dashed #d8b4fe; padding-top:4px;">
+                            <div style="font-size:12px; font-weight:bold; color:#6b21a8;">💇 今回の髪型・髪色（入れるとプロンプトに反映。空欄ならキャラ画像の髪）</div>
+                            ${hairInputsHtml}
+                        </div>
                     </div>` : ""}
                 </div>
 
@@ -1746,6 +1765,18 @@ AIっぽい演出があれば、
             };
             textarea.addEventListener('input', updateCount);
             updateCount();
+        });
+
+        // 髪型・髪色の入力欄 → プロンプト内の「・人物Aの髪型・髪色：」行を書き換える
+        document.querySelectorAll('input.hair-input').forEach(input => {
+            input.addEventListener('input', () => {
+                const textarea = document.getElementById('img-prompt-' + input.getAttribute('data-row'));
+                if (!textarea) return;
+                const side = input.getAttribute('data-side');
+                const value = input.value.trim() || '（指定なし）';
+                const line = new RegExp('^・人物' + side + 'の髪型・髪色：.*$', 'm');
+                textarea.value = textarea.value.replace(line, () => '・人物' + side + 'の髪型・髪色：' + value);
+            });
         });
 
         // ボタンのイベントリスナー設定
