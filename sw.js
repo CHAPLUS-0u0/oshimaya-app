@@ -1,4 +1,4 @@
-const CACHE_NAME = 'oshimaya-v4';
+const CACHE_NAME = 'oshimaya-v5';
 const urlsToCache = [
   './',
   './index.html',

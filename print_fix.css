@@ -1,0 +1,101 @@
+/* =============================================
+   印刷（PDF保存）専用の追加調整
+   style.css / style_v8.css より「あと」に読み込む。
+   直すこと：①右へのはみ出し ②下の白い余白 ③末尾の白紙ページ
+   ============================================= */
+/* 用紙はA4縦・余白ゼロ。
+   style.css / style_v8.css の @page は @media の中にあるうえ !important が付いていて、
+   ブラウザによっては無視され、既定の余白（約10mm）が付いて白フチになる。
+   @media の外に、素の指定でも置いておく。 */
+@page {
+    size: A4 portrait;
+    margin: 0;
+}
+
+@media print {
+
+    /* ① はみ出し防止：
+       flex の子要素は、中身の長さに引っ張られて親より広がることがある（min-width:auto）。
+       印刷の余白で用紙の幅が狭くなっても、必ず親の幅の中に収まるようにする。 */
+    .plan-page.print-active,
+    .plan-page.print-active * {
+        box-sizing: border-box;
+    }
+    .plan-page.print-active .st-top-row > *,
+    .plan-page.print-active .top3-cards-container > *,
+    .plan-page.print-active .st-top3-box,
+    .plan-page.print-active .st-user-box {
+        min-width: 0 !important;
+        max-width: 100% !important;
+    }
+    .plan-page.print-active .top3-info,
+    .plan-page.print-active .top3-info * {
+        overflow-wrap: anywhere;
+    }
+
+    /* ② 白い余白対策：
+       各ページを用紙1枚の高さにほぼいっぱいにして、背景が下端近くまで届くようにする。
+       ・.canvas-wrapper に画面用の zoom:0.8 が掛かったまま印刷されるので、
+         その分を逆算した値で指定している（355mm × 0.8 ＝ 紙面で約284mm ≒ A4の高さの96%）。
+       ・これ以上大きくすると、ページ数が倍になる（各ページの後ろに白紙が1枚できる）ことを
+         実測で確認済み（358mmまでOK、360mmからNG）。
+       ・style.css の .canvas-wrapper の zoom を変えたら、ここの値も合わせて直すこと。 */
+    .plan-page.print-active {
+        min-height: 355mm !important;
+    }
+    #image-gen-view {
+        overflow: visible !important;
+    }
+
+    /* ③ 末尾の白紙ページ対策：
+       「各ページの後ろで必ず改ページ」だと、最後のページの後ろにも白紙が1枚できる。
+       「2ページ目以降の前で改ページ」に切り替える。 */
+    .plan-page.print-active {
+        break-after: auto !important;
+        page-break-after: auto !important;
+    }
+    .plan-page.print-active ~ .plan-page.print-active {
+        break-before: page !important;
+        page-break-before: always !important;
+    }
+}
+
+
+/* ===== Mini Plan（無料お試し）: 自分＋推し1人の1枚 ===== */
+#page-mini {
+  background: url('images/bg-starter.png') center center / 100% 100% no-repeat;
+  min-height: 0;
+  padding: 28px 40px 24px 40px;
+}
+.mn-pair {
+  display: flex; align-items: stretch; justify-content: center; gap: 18px;
+  margin: 14px 0 12px;
+}
+.mn-side {
+  flex: 0 0 230px; display: flex; flex-direction: column; align-items: center; text-align: center;
+  background: rgba(255,255,255,0.85); border: 2px solid rgba(255,182,206,0.45);
+  border-radius: 18px; padding: 16px 10px 14px; justify-content: center;
+}
+.mn-img-wrap {
+  width: 150px; height: 150px; border-radius: 50%; overflow: hidden;
+  border: 5px solid #fff; box-shadow: 0 6px 16px rgba(255,100,150,0.22);
+  display: inline-flex; justify-content: center; align-items: center; margin-bottom: 8px;
+}
+.mn-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
+.mn-oshi img { object-position: top center; transform: scale(1.2); }
+.mn-name { font-size: 20px; font-weight: bold; color: #333; }
+.mn-kin { font-size: 22px; color: #f472b6; font-weight: bold; }
+.mn-seal { font-size: 13.5px; color: #7c3aed; font-weight: bold; margin: 2px 0; }
+.mn-center { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; flex: 0 0 auto; }
+.mn-label {
+  background: linear-gradient(135deg, #f9a8d4, #c084fc); color: #fff; font-weight: bold;
+  font-size: 13.5px; padding: 6px 14px; border-radius: 20px; white-space: nowrap;
+}
+.mn-heart { font-size: 40px; }
+.mn-relation-box {
+  background: rgba(255,255,255,0.85); border: 2px dashed rgba(192,132,252,0.5);
+  border-radius: 16px; padding: 14px 20px; text-align: center;
+}
+.mn-relation-box h4 { color: #be185d; margin: 0 0 6px; font-size: 16px; }
+.mn-relation-type { color: #7c3aed; font-weight: bold; font-size: 18px; margin-bottom: 6px; }
+.mn-relation-box p { color: #555; font-size: 15px; line-height: 1.7; margin: 0; }

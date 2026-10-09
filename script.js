@@ -376,7 +376,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const opt = document.createElement('option');
             opt.value = y;
             opt.textContent = `${y}年`;
-            if (y === 1990) opt.selected = true; // デフォルト 1990年
+            if (y === 1984) opt.selected = true; // デフォルト 1984年
             birthYear.appendChild(opt);
         }
         // 月: 1〜12
@@ -385,7 +385,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const mVal = String(m).padStart(2, '0');
             opt.value = mVal;
             opt.textContent = `${m}月`;
-            if (m === 1) opt.selected = true; // デフォルト 1月
+            if (m === 9) opt.selected = true; // デフォルト 9月
             birthMonth.appendChild(opt);
         }
         // 日: 1〜31
@@ -394,7 +394,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const dVal = String(d).padStart(2, '0');
             opt.value = dVal;
             opt.textContent = `${d}日`;
-            if (d === 1) opt.selected = true; // デフォルト 1日
+            if (d === 3) opt.selected = true; // デフォルト 3日
             birthDay.appendChild(opt);
         }
 
@@ -460,6 +460,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (currentValue && oshiData[currentValue]) {
             select.value = currentValue;
+        } else if (oshiData["Jimin"]) {
+            select.value = "Jimin"; // デフォルト推し
         } else if (oshiData["Jungkook"]) {
             select.value = "Jungkook";
         }
@@ -584,8 +586,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     planSelect.addEventListener('change', (e) => {
-        oshiSelect.disabled = (e.target.value !== 'high');
-        if (e.target.value !== 'high') oshiSelect.value = "";
+        // 推しを選ぶのは Soul と Mini（自分＋推し1人）だけ
+        const needsOshi = (e.target.value === 'high' || e.target.value === 'mini');
+        oshiSelect.disabled = !needsOshi;
+        if (!needsOshi) oshiSelect.value = "";
+        else if (!oshiSelect.value && oshiData["Jimin"]) oshiSelect.value = "Jimin";
         generateCard(); // プランが変更されたら自動生成
     });
 
@@ -608,7 +613,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ページ表示切り替え
 function showPages(ids) {
-    ['page-starter','page-feeling-1','page-feeling-2','page-soul-1','page-soul-2'].forEach(id => {
+    ['page-mini','page-starter','page-feeling-1','page-feeling-2','page-soul-1','page-soul-2'].forEach(id => {
         const el = document.getElementById(id);
         if (el) {
             if (ids.includes(id)) {
@@ -764,7 +769,11 @@ function generateCard() {
     }
 
     // ========== プランごとのページ表示 ==========
-    if (planType === 'low') {
+    if (planType === 'mini') {
+        showPages(['page-mini']);
+        populateMini(userName, userKin, userSeal, userTone, userImgPath, targetMember, oshi, sealData, mKin);
+
+    } else if (planType === 'low') {
         showPages(['page-starter']);
         populateStarter(userName, userKin, userSeal, userTone, rankings, sealData);
 
@@ -813,6 +822,23 @@ function populateStarter(userName, userKin, userSeal, userTone, rankings, sealDa
     const detail = document.getElementById('detail-section');
     if (detail) detail.style.display = 'block';
     setEl('maya-message', `あなたは「${sealData.kwSet[0]}」な人に惹かれやすいタイプ✨推しが持つ魅力の奥深さに気づける、素晴らしい感性の持ち主です！あなたの推しへの感情の正体や、推し活がもたらすポジティブな影響について、もっと深く知ってみませんか？\n『Feeling Plan』では4位以降のメンバーとの詳細な相性を大公開！さらに『Soul Plan』では、あなたと本命推しの前世からの深い繋がりや、なぜそこまで沼ってしまうのか…その理由を丸裸にします♡\n次のプランで、あなたの推し活をさらに特別なものにしましょう！`);
+}
+
+// ========== Mini（無料お試し）反映 ==========
+// 自分のキャラと推し1人を並べた1枚。続きはStarter以上へ誘導
+function populateMini(userName, userKin, userSeal, userTone, userImgPath, targetMember, oshi, sealData, mKin) {
+    setImg('mn-you-img', userImgPath, 'images/User/user.png');
+    setEl('mn-user-name', userName);
+    setEl('mn-user-kin', userKin);
+    setEl('mn-user-seal', `${userSeal} × 音${userTone}`);
+    setEl('mn-user-tag', sealData.tag);
+    setImg('mn-oshi-img', getOshiImgSrc(oshi));
+    setEl('mn-oshi-name', oshi.name);
+    setEl('mn-oshi-kin', mKin(targetMember));
+    setEl('mn-relation-label', targetMember.emotionTag);
+    setEl('mn-relation-type', targetMember.type);
+    setEl('mn-relation-desc', targetMember.desc);
+    setEl('mn-message', `あなたは「${sealData.kwSet[0]}」な人に惹かれやすいタイプ✨ ${oshi.name}とは【${targetMember.emotionTag}】でつながる2人みたい♡`);
 }
 
 // ========== Feeling 反映 ==========
@@ -980,7 +1006,7 @@ function getAdvice(type) {
 }
 
 function generateDeliveryText(planType, userName, userKin, userSeal, userTone, rankings, targetMember, oshi, ep, sealData) {
-    const planName = planType === 'low' ? 'Starter Plan' : planType === 'mid' ? 'Feeling Plan' : 'Soul Plan';
+    const planName = planType === 'mini' ? 'Mini Plan（お試し）' : planType === 'low' ? 'Starter Plan' : planType === 'mid' ? 'Feeling Plan' : 'Soul Plan';
     const kwSet = sealData.kwSet;
     const header = `【 💜BTS 推し相性診断（${planName}） 】\n\nご依頼ありがとうございます✨\n${userName}さんとBTSメンバーとの感情相性を、マヤ暦を通して深く読み解いていきます🔮\n\n━━━━━━━━━━━━━━\n\n【 🌿あなたの基本タイプ 】\n\nKIN${userKin}「${userSeal} × 音${userTone}」\n\n━━━━━━━━━━━━━━\n`;
     const rankList = rankings.map((m, i) => {
@@ -989,7 +1015,9 @@ function generateDeliveryText(planType, userName, userKin, userSeal, userTone, r
     }).join("\n");
 
     let body = '';
-    if (planType === 'low') {
+    if (planType === 'mini') {
+        body = `【 💜 あなたと${oshi.name}の相性 】\n\n👉 ${targetMember.type}（${targetMember.emotionTag}）\n${targetMember.desc}\n\n🔒 あなたと波長が合うメンバーTOP3と相性ポイントは『Starter Plan』で♡\n🔒 全員との相性や「なぜ惹かれるのか」の深い分析は『Feeling Plan』で公開中！\n\n━━━━━━━━━━━━━━\n\n【 🔮 マヤ暦からのメッセージ 】\n\nあなたは「${sealData.kwSet[0]}」な人に惹かれやすいタイプ✨\n推しの魅力の奥深さに気づける、素敵な感性の持ち主です💜`;
+    } else if (planType === 'low') {
         const mayanMessage = `あなたは「${sealData.kwSet[0]}」な人に惹かれやすいタイプ✨推しが持つ魅力の奥深さに気づける、素晴らしい感性の持ち主です！\nあなたの推しへの感情の正体や、推し活がもたらすポジティブな影響について、もっと深く知ってみませんか？\n『Feeling Plan』では4位以降のメンバーとの詳細な相性を大公開！さらに『Soul Plan』では、あなたと本命推しの前世からの深い繋がりや、なぜそこまで沼ってしまうのか…その理由を丸裸にします♡\n次のプランで、あなたの推し活をさらに特別なものにしましょう！`;
         body = `【 🥇🥈🥉 総合相性 TOP3 】\n\n${rankings.slice(0,3).map((m,i)=>`${["🥇","🥈","🥉"][i]} ${m.name} ${m.score}%\n👉 ${m.type}\n${m.desc}`).join("\n\n")}\n\n🔒 4位以降は上位プランで大公開！\n\n━━━━━━━━━━━━━━\n\n【 🔮 マヤ暦からのメッセージ 】\n\n${mayanMessage}`;
     } else if (planType === 'mid') {
@@ -1148,7 +1176,9 @@ document.addEventListener('DOMContentLoaded', () => {
             // どのプランが表示されているか判定
             const planType = document.getElementById('plan-type').value;
             let targetElementId = 'page-starter'; // デフォルト
-            if (planType === 'mid') {
+            if (planType === 'mini') {
+                targetElementId = 'page-mini';
+            } else if (planType === 'mid') {
                 targetElementId = 'page-feeling-1'; // 1ページ目を代表として取得
             } else if (planType === 'high') {
                 targetElementId = 'page-soul-1';

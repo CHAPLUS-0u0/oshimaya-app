@@ -917,7 +917,7 @@
     }
     
     /* A4縦サイズにピッタリ合わせ、ブラウザ標準の余白を強制無効化 */
-    @page { size: A4 portrait; margin: 0; }
+    @page { size: A4 portrait; margin: 0 !important; }
     body { background: #fff !important; margin: 0 !important; padding: 0 !important; width: 100% !important; height: auto !important; }
     .app-container { display: block !important; padding: 0 !important; margin: 0 !important; width: 100% !important; height: auto !important; }
     .preview-area { display: block !important; width: 100% !important; height: auto !important; padding: 0 !important; margin: 0 !important; overflow: visible !important; }
@@ -930,6 +930,8 @@
     /* 表示対象のページ（A4サイズ） */
     .plan-page.print-active {
         display: block !important; /* 絶対に表示する */
+        width: 100% !important; /* 用紙幅にフィットさせてはみ出しを防止 */
+        max-width: 100% !important;
         height: auto !important;
         box-sizing: border-box !important;
         margin: 0 auto !important; /* 印刷領域の中央に配置 */
@@ -938,7 +940,6 @@
         position: relative !important;
         page-break-after: always !important;
         break-after: page !important;
-        max-width: none !important;
     }
 
     /* 印刷時の文字サイズとレイアウト微調整（用紙内に確実に収める） */
@@ -1001,7 +1002,7 @@
 
     /* 2. Starter Plan (下部のはみ出し防止＆余白調整) */
     #page-starter {
-        padding: 24px 44px 16px 32px !important; /* 右はみ出し防止のため右padding拡大 */
+        padding: 24px 32px 16px 32px !important;
     }
     #page-starter .st-top-row {
         gap: 8px !important;
