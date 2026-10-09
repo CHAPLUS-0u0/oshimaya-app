@@ -586,11 +586,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     planSelect.addEventListener('change', (e) => {
-        // 推しを選ぶのは Soul と Mini（自分＋推し1人）だけ
-        const needsOshi = (e.target.value === 'high' || e.target.value === 'mini');
-        oshiSelect.disabled = !needsOshi;
-        if (!needsOshi) oshiSelect.value = "";
-        else if (!oshiSelect.value && oshiData["Jimin"]) oshiSelect.value = "Jimin";
+        oshiSelect.disabled = (e.target.value !== 'high');
+        if (e.target.value !== 'high') oshiSelect.value = "";
         generateCard(); // プランが変更されたら自動生成
     });
 
@@ -771,7 +768,7 @@ function generateCard() {
     // ========== プランごとのページ表示 ==========
     if (planType === 'mini') {
         showPages(['page-mini']);
-        populateMini(userName, userKin, userSeal, userTone, userImgPath, targetMember, oshi, sealData, mKin);
+        populateMini(userName, userKin, userSeal, userTone, userImgPath, rankings[0], sealData, mKin);
 
     } else if (planType === 'low') {
         showPages(['page-starter']);
@@ -825,20 +822,20 @@ function populateStarter(userName, userKin, userSeal, userTone, rankings, sealDa
 }
 
 // ========== Mini（無料お試し）反映 ==========
-// 自分のキャラと推し1人を並べた1枚。続きはStarter以上へ誘導
-function populateMini(userName, userKin, userSeal, userTone, userImgPath, targetMember, oshi, sealData, mKin) {
+// 自分のキャラと「いちばん相性がいいメンバー」を並べた1枚
+function populateMini(userName, userKin, userSeal, userTone, userImgPath, best, sealData, mKin) {
     setImg('mn-you-img', userImgPath, 'images/User/user.png');
     setEl('mn-user-name', userName);
     setEl('mn-user-kin', userKin);
     setEl('mn-user-seal', `${userSeal} × 音${userTone}`);
     setEl('mn-user-tag', sealData.tag);
-    setImg('mn-oshi-img', getOshiImgSrc(oshi));
-    setEl('mn-oshi-name', oshi.name);
-    setEl('mn-oshi-kin', mKin(targetMember));
-    setEl('mn-relation-label', targetMember.emotionTag);
-    setEl('mn-relation-type', targetMember.type);
-    setEl('mn-relation-desc', targetMember.desc);
-    setEl('mn-message', `あなたは「${sealData.kwSet[0]}」な人に惹かれやすいタイプ✨ ${oshi.name}とは【${targetMember.emotionTag}】でつながる2人みたい♡`);
+    setImg('mn-oshi-img', getOshiImgSrc(best));
+    setEl('mn-oshi-name', best.name);
+    setEl('mn-oshi-kin', mKin(best));
+    setEl('mn-relation-label', best.emotionTag);
+    setEl('mn-relation-type', best.type);
+    setEl('mn-relation-desc', best.desc);
+    setEl('mn-message', `あなたは「${sealData.kwSet[0]}」な人に惹かれやすいタイプ✨ いちばん波長が合う${best.name}とは【${best.emotionTag}】でつながる2人みたい♡`);
 }
 
 // ========== Feeling 反映 ==========
@@ -1016,7 +1013,7 @@ function generateDeliveryText(planType, userName, userKin, userSeal, userTone, r
 
     let body = '';
     if (planType === 'mini') {
-        body = `【 💜 あなたと${oshi.name}の相性 】\n\n👉 ${targetMember.type}（${targetMember.emotionTag}）\n${targetMember.desc}\n\n🔒 あなたと波長が合うメンバーTOP3と相性ポイントは『Starter Plan』で♡\n🔒 全員との相性や「なぜ惹かれるのか」の深い分析は『Feeling Plan』で公開中！\n\n━━━━━━━━━━━━━━\n\n【 🔮 マヤ暦からのメッセージ 】\n\nあなたは「${sealData.kwSet[0]}」な人に惹かれやすいタイプ✨\n推しの魅力の奥深さに気づける、素敵な感性の持ち主です💜`;
+        body = `【 👑 いちばん波長が合うメンバー：${rankings[0].name} 】\n\n👉 ${rankings[0].type}（${rankings[0].emotionTag}）\n${rankings[0].desc}\n\n🔒 2位・3位のメンバーと相性ポイントは『Starter Plan』で♡\n🔒 全員との相性や「なぜ惹かれるのか」の深い分析は『Feeling Plan』で公開中！\n\n━━━━━━━━━━━━━━\n\n【 🔮 マヤ暦からのメッセージ 】\n\nあなたは「${sealData.kwSet[0]}」な人に惹かれやすいタイプ✨\n推しの魅力の奥深さに気づける、素敵な感性の持ち主です💜`;
     } else if (planType === 'low') {
         const mayanMessage = `あなたは「${sealData.kwSet[0]}」な人に惹かれやすいタイプ✨推しが持つ魅力の奥深さに気づける、素晴らしい感性の持ち主です！\nあなたの推しへの感情の正体や、推し活がもたらすポジティブな影響について、もっと深く知ってみませんか？\n『Feeling Plan』では4位以降のメンバーとの詳細な相性を大公開！さらに『Soul Plan』では、あなたと本命推しの前世からの深い繋がりや、なぜそこまで沼ってしまうのか…その理由を丸裸にします♡\n次のプランで、あなたの推し活をさらに特別なものにしましょう！`;
         body = `【 🥇🥈🥉 総合相性 TOP3 】\n\n${rankings.slice(0,3).map((m,i)=>`${["🥇","🥈","🥉"][i]} ${m.name} ${m.score}%\n👉 ${m.type}\n${m.desc}`).join("\n\n")}\n\n🔒 4位以降は上位プランで大公開！\n\n━━━━━━━━━━━━━━\n\n【 🔮 マヤ暦からのメッセージ 】\n\n${mayanMessage}`;

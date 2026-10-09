@@ -61,41 +61,48 @@
 }
 
 
-/* ===== Mini Plan（無料お試し）: 自分＋推し1人の1枚 ===== */
+/* ===== Mini Plan（無料お試し）: 自分＋相性1位の1枚 ===== */
 #page-mini {
   background: url('images/bg-starter.png') center center / 100% 100% no-repeat;
   min-height: 0;
-  padding: 28px 40px 24px 40px;
+  padding: 30px 36px 28px 36px;
 }
 .mn-pair {
-  display: flex; align-items: stretch; justify-content: center; gap: 18px;
-  margin: 14px 0 12px;
+  display: flex; align-items: stretch; justify-content: center; gap: 14px;
+  margin: 16px 0 16px;
 }
 .mn-side {
-  flex: 0 0 230px; display: flex; flex-direction: column; align-items: center; text-align: center;
+  flex: 0 0 265px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
   background: rgba(255,255,255,0.85); border: 2px solid rgba(255,182,206,0.45);
-  border-radius: 18px; padding: 16px 10px 14px; justify-content: center;
+  border-radius: 20px; padding: 20px 12px 18px; position: relative;
+}
+.mn-crown {
+  position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+  background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #fff; font-weight: bold;
+  font-size: 14px; padding: 4px 16px; border-radius: 16px; white-space: nowrap;
+  box-shadow: 0 3px 8px rgba(245,158,11,0.35);
 }
 .mn-img-wrap {
-  width: 150px; height: 150px; border-radius: 50%; overflow: hidden;
-  border: 5px solid #fff; box-shadow: 0 6px 16px rgba(255,100,150,0.22);
-  display: inline-flex; justify-content: center; align-items: center; margin-bottom: 8px;
+  width: 210px; height: 210px; border-radius: 50%; overflow: hidden;
+  border: 6px solid #fff; box-shadow: 0 8px 20px rgba(255,100,150,0.25);
+  display: inline-flex; justify-content: center; align-items: center; margin-bottom: 10px;
 }
 .mn-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
 .mn-oshi img { object-position: top center; transform: scale(1.2); }
-.mn-name { font-size: 20px; font-weight: bold; color: #333; }
-.mn-kin { font-size: 22px; color: #f472b6; font-weight: bold; }
-.mn-seal { font-size: 13.5px; color: #7c3aed; font-weight: bold; margin: 2px 0; }
-.mn-center { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; flex: 0 0 auto; }
+.mn-name { font-size: 24px; font-weight: bold; color: #333; }
+.mn-kin { font-size: 26px; color: #f472b6; font-weight: bold; }
+.mn-seal { font-size: 15px; color: #7c3aed; font-weight: bold; margin: 2px 0; }
+.mn-side .st-tag { font-size: 14px; padding: 5px 14px; }
+.mn-center { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; flex: 0 0 auto; }
 .mn-label {
   background: linear-gradient(135deg, #f9a8d4, #c084fc); color: #fff; font-weight: bold;
-  font-size: 13.5px; padding: 6px 14px; border-radius: 20px; white-space: nowrap;
+  font-size: 14px; padding: 6px 12px; border-radius: 20px; white-space: nowrap;
 }
-.mn-heart { font-size: 40px; }
+.mn-heart { font-size: 46px; }
 .mn-relation-box {
   background: rgba(255,255,255,0.85); border: 2px dashed rgba(192,132,252,0.5);
-  border-radius: 16px; padding: 14px 20px; text-align: center;
+  border-radius: 16px; padding: 16px 22px; text-align: center;
 }
-.mn-relation-box h4 { color: #be185d; margin: 0 0 6px; font-size: 16px; }
-.mn-relation-type { color: #7c3aed; font-weight: bold; font-size: 18px; margin-bottom: 6px; }
-.mn-relation-box p { color: #555; font-size: 15px; line-height: 1.7; margin: 0; }
+.mn-relation-box h4 { color: #be185d; margin: 0 0 6px; font-size: 17px; }
+.mn-relation-type { color: #7c3aed; font-weight: bold; font-size: 20px; margin-bottom: 6px; }
+.mn-relation-box p { color: #555; font-size: 16px; line-height: 1.7; margin: 0; }
