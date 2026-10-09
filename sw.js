@@ -1,4 +1,4 @@
-const CACHE_NAME = 'oshimaya-v6';
+const CACHE_NAME = 'oshimaya-v7';
 const urlsToCache = [
   './',
   './index.html',
@@ -45,10 +45,13 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
   // ネット優先：つながる時は常に最新を表示し、オフラインの時だけ保存版を使う
+  const sameOrigin = new URL(event.request.url).origin === self.location.origin;
+  // 自サイトのファイルは毎回サーバーに更新確認（ブラウザの古い保存版を使わない）
+  const req = sameOrigin ? fetch(event.request.url, { cache: 'no-cache' }) : fetch(event.request);
   event.respondWith(
-    fetch(event.request)
+    req
       .then(response => {
-        if (response && response.ok && new URL(event.request.url).origin === self.location.origin) {
+        if (response && response.ok && sameOrigin) {
           const copy = response.clone();
           caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
         }
