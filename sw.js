@@ -1,4 +1,4 @@
-const CACHE_NAME = 'oshimaya-v5';
+const CACHE_NAME = 'oshimaya-v6';
 const urlsToCache = [
   './',
   './index.html',
@@ -19,7 +19,7 @@ self.addEventListener('install', event => {
         // addAllだと1つでも失敗するとインストール全体が失敗するため、個別にキャッシュする
         return Promise.all(
           urlsToCache.map(url => {
-            return cache.add(url).catch(err => console.warn('Failed to cache', url, err));
+            return cache.add(new Request(url, { cache: 'reload' })).catch(err => console.warn('Failed to cache', url, err));
           })
         );
       })
@@ -43,15 +43,17 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
+  if (event.request.method !== 'GET') return;
+  // ネット優先：つながる時は常に最新を表示し、オフラインの時だけ保存版を使う
   event.respondWith(
-    caches.match(event.request)
+    fetch(event.request)
       .then(response => {
-        if (response) {
-          return response;
+        if (response && response.ok && new URL(event.request.url).origin === self.location.origin) {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
         }
-        return fetch(event.request).catch(() => {
-          console.log('Offline fallback for', event.request.url);
-        });
+        return response;
       })
+      .catch(() => caches.match(event.request, { ignoreSearch: true }))
   );
 });
